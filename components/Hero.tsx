@@ -1,37 +1,41 @@
 'use client';
 
 import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
+import SearchBar from './SearchBar';
 
-const ResearchGraph3D = dynamic(() => import('./ResearchGraph3D'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full min-h-[120px] flex flex-col items-center justify-center space-y-1 p-4">
-      <div className="w-4 h-4 rounded-full border-2 border-[#FF6B35]/20 border-t-[#FF6B35] animate-spin" />
-    </div>
-  )
-});
+interface HeroProps {
+  searchQuery: string;
+  onSearchChange: (val: string) => void;
+}
 
-export default function Hero() {
+export default function Hero({ searchQuery, onSearchChange }: HeroProps) {
   const [activeFilter, setActiveFilter] = useState('All Time');
-  
   const periods = ['Today', 'This Week', 'This Month', 'All Time'];
 
   return (
-    <section className="bg-white py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-[#ECECEC] pb-6 mb-4">
-      
-      {/* Left side text and filters */}
-      <div className="flex-1 flex flex-col md:flex-row justify-between items-start md:items-end w-full gap-4">
-        <div className="space-y-1 text-left max-w-2xl">
-          <h1 className="text-3xl font-bold font-serif text-[#111111] leading-tight">
-            Discover Frontier AI Research
-          </h1>
-          <p className="text-sm font-serif text-[#666666] leading-relaxed">
-            Explore the latest papers, methods and breakthroughs from the world&apos;s AI research community.
-          </p>
+    <section className="bg-white py-6 flex flex-col gap-6 border-b border-[#ECECEC] pb-8 mb-4">
+      {/* Title & Subtitle */}
+      <div className="space-y-1.5 text-left w-full max-w-3xl">
+        <h1 className="text-4xl font-bold font-serif text-[#111111] leading-tight">
+          Discover Frontier AI Research
+        </h1>
+        <p className="text-sm font-serif text-[#666666] leading-relaxed">
+          Explore the latest papers, methods and breakthroughs from the world&apos;s AI research community.
+        </p>
+      </div>
+
+      {/* Search & Filters Row */}
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
+        {/* Search Bar */}
+        <div className="flex-1 max-w-xl">
+          <SearchBar 
+            value={searchQuery} 
+            onChange={onSearchChange} 
+            placeholder="Search papers, methods, tasks, organizations..." 
+          />
         </div>
 
-        {/* Timeframe Filters aligned to the right of the title block */}
+        {/* Timeframe Filters */}
         <div className="flex items-center gap-0.5 border border-[#ECECEC] rounded-md p-0.5 bg-gray-50 shrink-0 self-start md:self-auto">
           {periods.map((period) => {
             const isActive = activeFilter === period;
@@ -40,10 +44,10 @@ export default function Hero() {
                 key={period}
                 type="button"
                 onClick={() => setActiveFilter(period)}
-                className={`px-3 py-1.5 text-xs font-serif transition-all duration-150 cursor-pointer rounded ${
+                className={`px-3 py-1.5 text-xs font-serif transition-all duration-150 cursor-pointer rounded border-0 ${
                   isActive 
                     ? 'bg-[#FF6B35] text-white font-semibold' 
-                    : 'text-[#666666] hover:text-[#FF6B35]'
+                    : 'text-[#666666] hover:text-[#FF6B35] bg-transparent'
                 }`}
               >
                 {period}
@@ -52,12 +56,6 @@ export default function Hero() {
           })}
         </div>
       </div>
-
-      {/* Right side: 3D network visual */}
-      <div className="w-[140px] h-[90px] shrink-0 overflow-hidden relative rounded-md border border-[#ECECEC] bg-gray-50 flex items-center justify-center">
-        <ResearchGraph3D />
-      </div>
-
     </section>
   );
 }

@@ -6,7 +6,7 @@ import {
   Flame, Clock, Star, Landmark, Bookmark, FolderOpen, BookOpen, ChevronLeft, 
   ChevronRight, PlusCircle, Cpu, Brain, Database, Code, Monitor, Globe, Bot,
   GitCommit, Activity, Sliders, Heart, CheckSquare, Network, FileText, Image,
-  Film, Volume2
+  Film, Volume2, Home
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -41,6 +41,12 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
   }, [hasManuallyToggled, isDrawer]);
 
   const groups = [
+    {
+      title: '',
+      items: [
+        { id: 'home', name: 'Home', icon: Home }
+      ]
+    },
     {
       title: 'DISCOVER',
       items: [
@@ -99,6 +105,7 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
   ];
 
   const collapsedIcons = [
+    { id: 'home', name: 'Home', icon: Home },
     { id: 'trending-papers', name: 'Trending Papers', icon: Flame },
     { id: 'latest-papers', name: 'Latest Papers', icon: Clock },
     { id: 'github-stars', name: 'Most GitHub Stars', icon: Star },
@@ -140,17 +147,18 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
           <div className="space-y-5">
              {groups.map((group, idx) => (
               <div key={idx} className="space-y-1">
-                <h4 className="px-3 text-[10px] font-bold tracking-wider text-[#888888] uppercase">
-                  {group.title}
-                </h4>
+                {group.title && (
+                  <h4 className="px-3 text-[10px] font-bold tracking-wider text-[#888888] uppercase">
+                    {group.title}
+                  </h4>
+                )}
                 <div className="space-y-0.5">
                   {group.items.map((item) => {
                     const isActive = currentView === item.id || 
-                      (currentView === 'home' && item.id === 'trending-papers') ||
                       (item.id.startsWith('area-') && currentView === item.id.replace('area-', '')) ||
                       (item.id.startsWith('method-') && currentView === item.id.replace('method-', '')) ||
                       (item.id.startsWith('gen-') && currentView === item.id.replace('gen-', '')) ||
-                      (item.id.startsWith('lib-') && currentView === item.id) ||
+                      (item.id.startsWith('lib-') && (currentView === item.id || currentView === item.id.replace('lib-', ''))) ||
                       (item.id === 'lib-bookmarks' && currentView === 'bookmarks');
                     
                     const Icon = item.icon;
@@ -197,11 +205,10 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
             {collapsedIcons.map((item) => {
               const Icon = item.icon;
               const isActive = currentView === item.id || 
-                (currentView === 'home' && item.id === 'trending-papers') ||
                 (item.id.startsWith('area-') && currentView === item.id.replace('area-', '')) ||
                 (item.id.startsWith('method-') && currentView === item.id.replace('method-', '')) ||
                 (item.id.startsWith('gen-') && currentView === item.id.replace('gen-', '')) ||
-                (item.id.startsWith('lib-') && currentView === item.id);
+                (item.id.startsWith('lib-') && (currentView === item.id || currentView === item.id.replace('lib-', '')));
               
               return (
                 <Link

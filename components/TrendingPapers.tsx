@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { 
-  Bookmark, Eye, Save, Sparkles, Network, ArrowLeftRight, 
-  FileText, ArrowUp, Trophy
+  ArrowUp, Trophy
 } from 'lucide-react';
 import { Paper } from '@/types';
 
@@ -25,7 +24,6 @@ interface TrendingPapersProps {
   onViewPaper: (paper: Paper) => void;
   onBookmarkToggle: (paper: Paper) => void;
   onCompareSelect: (paper: Paper) => void;
-  onGenerateSummary: (paper: Paper) => void;
   onOpenGraph: (paper: Paper) => void;
   onSavePaper: (paper: Paper) => void;
 }
@@ -35,7 +33,6 @@ export default function TrendingPapers({
   onViewPaper, 
   onBookmarkToggle, 
   onCompareSelect, 
-  onGenerateSummary, 
   onOpenGraph, 
   onSavePaper 
 }: TrendingPapersProps) {

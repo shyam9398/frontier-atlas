@@ -10,7 +10,6 @@ import TrendingPapers from '@/components/TrendingPapers';
 import CompareModal from '@/components/CompareModal';
 import SummaryModal from '@/components/SummaryModal';
 import GenericExplorer from '@/components/GenericExplorer';
-import Footer from '@/components/Footer';
 import { trendingPapers as initialPapers } from '@/data/mockData';
 import { Paper } from '@/types';
 import { 
@@ -53,7 +52,6 @@ export default function CatchAllPage({ params }: PageProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
 
 
@@ -155,6 +153,126 @@ export default function CatchAllPage({ params }: PageProps) {
       return [...papers].sort((a, b) => b.citations - a.citations);
     }
     return papers;
+  };
+
+  const getPapersForView = (viewId: string): Paper[] => {
+    switch (viewId) {
+      case 'home':
+      case 'trending-papers':
+        return papers;
+      case 'latest-papers':
+        return [...papers].sort((a, b) => new Date(b.pubDate ?? '').getTime() - new Date(a.pubDate ?? '').getTime());
+      case 'github-stars':
+        return [...papers].sort((a, b) => (b.stars ?? 0) - (a.stars ?? 0));
+      case 'most-cited':
+        return [...papers].sort((a, b) => b.citations - a.citations);
+      case 'lib-bookmarks':
+      case 'bookmarks':
+        return papers.filter(p => p.isBookmarked);
+      case 'lib-reading':
+      case 'reading':
+        return papers.filter(p => p.id === '1' || p.id === '3' || p.id === '5' || p.id === '10');
+      
+      // Tasks
+      case 'agents':
+        return papers.filter(p => p.category.toLowerCase().includes('agent'));
+      case 'reasoning':
+        return papers.filter(p => p.category.toLowerCase().includes('reasoning'));
+      case 'language':
+      case 'language-modeling':
+        return papers.filter(p => p.category.toLowerCase().includes('language') || p.category.toLowerCase().includes('nlp'));
+      case 'coding':
+      case 'coding-agents':
+        return papers.filter(p => p.category.toLowerCase().includes('coding') || p.title.toLowerCase().includes('code') || p.summary?.toLowerCase().includes('coding'));
+      case 'computer':
+      case 'computer-use':
+        return papers.filter(p => p.category.toLowerCase().includes('computer') || p.summary?.toLowerCase().includes('segment'));
+      case 'world':
+      case 'world-models':
+        return papers.filter(p => p.category.toLowerCase().includes('world') || p.summary?.toLowerCase().includes('world'));
+      case 'robotics':
+        return papers.filter(p => p.category.toLowerCase().includes('robot'));
+      
+      // Methods
+      case 'transformers':
+      case 'transformer':
+        return papers.filter(p => p.summary?.toLowerCase().includes('transformer') || p.title.toLowerCase().includes('transformer') || p.models?.some(m => m.toLowerCase().includes('transformer')));
+      case 'cot':
+      case 'chain-of-thought':
+        return papers.filter(p => p.summary?.toLowerCase().includes('chain-of-thought') || p.title.toLowerCase().includes('chain-of-thought') || p.summary?.toLowerCase().includes('cot'));
+      case 'react':
+        return papers.filter(p => p.summary?.toLowerCase().includes('react') || p.title.toLowerCase().includes('react') || p.category.toLowerCase().includes('agent'));
+      case 'lora':
+        return papers.filter(p => p.summary?.toLowerCase().includes('lora') || p.title.toLowerCase().includes('lora') || p.models?.some(m => m.toLowerCase().includes('lora')));
+      case 'rlhf':
+        return papers.filter(p => p.summary?.toLowerCase().includes('rlhf') || p.title.toLowerCase().includes('human feedback') || p.summary?.toLowerCase().includes('human feedback'));
+      case 'dpo':
+        return papers.filter(p => p.summary?.toLowerCase().includes('dpo') || p.title.toLowerCase().includes('dpo'));
+      case 'mcp':
+        return papers.filter(p => p.summary?.toLowerCase().includes('mcp') || p.title.toLowerCase().includes('mcp') || p.id === '1');
+
+      // Generation
+      case 'text':
+      case 'text-generation':
+        return papers.filter(p => p.category.toLowerCase().includes('language') || p.category.toLowerCase().includes('reasoning'));
+      case 'image':
+      case 'image-generation':
+        return papers.filter(p => p.category.toLowerCase().includes('image') || p.title.toLowerCase().includes('image') || p.summary?.toLowerCase().includes('image'));
+      case 'video':
+      case 'video-generation':
+        return papers.filter(p => p.category.toLowerCase().includes('video') || p.title.toLowerCase().includes('video') || p.summary?.toLowerCase().includes('video'));
+      case 'audio':
+      case 'audio-generation':
+        return papers.filter(p => p.category.toLowerCase().includes('audio') || p.title.toLowerCase().includes('audio') || p.summary?.toLowerCase().includes('audio'));
+
+      // Library
+      case 'collections':
+      case 'lib-collections':
+        return papers.filter(p => p.id === '2' || p.id === '3' || p.id === '9' || p.id === '17');
+
+      default:
+        return papers;
+    }
+  };
+
+  const getViewMetadata = (viewId: string) => {
+    const titles: Record<string, { title: string; desc: string }> = {
+      'agents': { title: 'Agents Research', desc: 'Browse the latest publications on autonomous agents, tool use, and multi-agent execution.' },
+      'reasoning': { title: 'Reasoning & Planning', desc: 'Explore papers on chain-of-thought, tree-of-thought, search-based reasoning, and logic.' },
+      'language': { title: 'Language Modeling', desc: 'Discover pretraining scaling laws, architecture improvements, and dense/sparse MoEs.' },
+      'language-modeling': { title: 'Language Modeling', desc: 'Discover pretraining scaling laws, architecture improvements, and dense/sparse MoEs.' },
+      'coding': { title: 'Coding Agents & Software Engineering', desc: 'Research on developer agents, code generation, and automated repository editing.' },
+      'coding-agents': { title: 'Coding Agents & Software Engineering', desc: 'Research on developer agents, code generation, and automated repository editing.' },
+      'computer': { title: 'Computer Use & GUI Agents', desc: 'Papers on OS/browser control, vision-action models, and general computer interaction.' },
+      'computer-use': { title: 'Computer Use & GUI Agents', desc: 'Papers on OS/browser control, vision-action models, and general computer interaction.' },
+      'world': { title: 'World Models', desc: 'Studies on spatial-temporal modeling, predictive world simulations, and model-based RL.' },
+      'world-models': { title: 'World Models', desc: 'Studies on spatial-temporal modeling, predictive world simulations, and model-based RL.' },
+      'robotics': { title: 'Robotics & Control', desc: 'Explore zero-shot transfer, humanoid control policies, and hardware-in-the-loop systems.' },
+      
+      'transformers': { title: 'Transformer Architectures', desc: 'Research on attention mechanisms, state-space models, and sequence transduction.' },
+      'cot': { title: 'Chain of Thought (CoT)', desc: 'Papers evaluating intermediate thinking-steps, reasoning traces, and verification.' },
+      'react': { title: 'ReAct Methodology', desc: 'Synergies between reasoning and acting in language models to perform API-based tools.' },
+      'lora': { title: 'Low-Rank Adaptation (LoRA)', desc: 'Studies on parameter-efficient fine-tuning, adaptive scaling, and rank selection.' },
+      'rlhf': { title: 'Reinforcement Learning from Human Feedback (RLHF)', desc: 'Explore reward modeling, PPO alignment, and reward hacking mitigations.' },
+      'dpo': { title: 'Direct Preference Optimization (DPO)', desc: 'Discover direct likelihood optimizations bypassing explicit reward modeling.' },
+      'mcp': { title: 'Model Context Protocol (MCP)', desc: 'Explore standard context exchange, agent tool schemas, and data pipelines.' },
+      
+      'text': { title: 'Text Generation Systems', desc: 'Studies on autoregressive generation, decoding speedups, and quality optimization.' },
+      'text-generation': { title: 'Text Generation Systems', desc: 'Studies on autoregressive generation, decoding speedups, and quality optimization.' },
+      'image': { title: 'Image Generation & Diffusion', desc: 'Explore latent diffusion, visual transformers, text-to-image synthesis, and GANs.' },
+      'image-generation': { title: 'Image Generation & Diffusion', desc: 'Explore latent diffusion, visual transformers, text-to-image synthesis, and GANs.' },
+      'video': { title: 'Video Generation Models', desc: 'Spatial-temporal modeling, continuous sequence frames, and physics simulator weights.' },
+      'video-generation': { title: 'Video Generation Models', desc: 'Spatial-temporal modeling, continuous sequence frames, and physics simulator weights.' },
+      'audio': { title: 'Audio & Speech Generation', desc: 'Text-to-speech, raw waveform synthesis, audio tokenizers, and musical generation.' },
+      'audio-generation': { title: 'Audio & Speech Generation', desc: 'Text-to-speech, raw waveform synthesis, audio tokenizers, and musical generation.' },
+      'collections': { title: 'Curated Collections', desc: 'Explore historical papers and classic AI breakthroughs curated by the community.' },
+      'lib-collections': { title: 'Curated Collections', desc: 'Explore historical papers and classic AI breakthroughs curated by the community.' },
+      'lib-reading': { title: 'Saved Reading List', desc: 'Your personal collection of papers stored for reference and deep review.' },
+      'reading': { title: 'Saved Reading List', desc: 'Your personal collection of papers stored for reference and deep review.' }
+    };
+    
+    const key = viewId.toLowerCase();
+    return titles[key] || { title: `${viewId.replace(/-/g, ' ')} Explorer`, desc: 'Explore specific publications and technical metrics.' };
   };
 
   const isExplorerView = ['models', 'datasets', 'benchmarks', 'authors', 'organizations'].includes(currentView);
@@ -470,12 +588,11 @@ export default function CatchAllPage({ params }: PageProps) {
           )}
 
           <div className="flex-1 max-w-[1400px] w-full mx-auto">
-            {currentView === 'home' && !isSearching && (
+            {currentView === 'home' && (
               <div className="flex flex-col">
                 
                 {/* Hero Section */}
                 <Hero 
-                  onSearchClick={() => setIsSearching(true)} 
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
                 />
@@ -506,7 +623,6 @@ export default function CatchAllPage({ params }: PageProps) {
                   onViewPaper={setSelectedPaperForView}
                   onBookmarkToggle={handleBookmarkToggle}
                   onCompareSelect={handleCompareSelect}
-                  onGenerateSummary={setSelectedPaperForSummary}
                   onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                   onSavePaper={handleSavePaper}
                 />
@@ -652,37 +768,7 @@ export default function CatchAllPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Filtered Search Results or Explorer Database Pages */}
-            {(isSearching || searchQuery.trim() !== '') && currentView === 'home' && (
-              <div className="flex flex-col gap-6 text-left">
-                <div className="flex items-center justify-between pb-3 border-b border-[#ECECEC]">
-                  <h2 className="font-serif font-bold text-base text-[#111111]">
-                    Search Results for &quot;{searchQuery}&quot;
-                  </h2>
-                  <button 
-                    onClick={() => { setSearchQuery(''); setIsSearching(false); }}
-                    className="text-xs font-serif text-[#FF6B35] hover:underline bg-transparent border-0 cursor-pointer"
-                  >
-                    Clear Search
-                  </button>
-                </div>
-                {getFilteredPapers(papers).length > 0 ? (
-                  <TrendingPapers
-                    papers={getFilteredPapers(papers)}
-                    onViewPaper={setSelectedPaperForView}
-                    onBookmarkToggle={handleBookmarkToggle}
-                    onCompareSelect={handleCompareSelect}
-                    onGenerateSummary={setSelectedPaperForSummary}
-                    onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
-                    onSavePaper={handleSavePaper}
-                  />
-                ) : (
-                  <div className="p-12 border border-[#ECECEC] rounded text-center font-serif text-sm text-[#666666]">
-                    No papers found matching your query.
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Search results are now displayed inline on the Home page */}
 
             {/* Explorer Database Pages */}
             {isExplorerView && (
@@ -701,7 +787,6 @@ export default function CatchAllPage({ params }: PageProps) {
                   onViewPaper={setSelectedPaperForView}
                   onBookmarkToggle={handleBookmarkToggle}
                   onCompareSelect={handleCompareSelect}
-                  onGenerateSummary={setSelectedPaperForSummary}
                   onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                   onSavePaper={handleSavePaper}
                 />
@@ -721,7 +806,6 @@ export default function CatchAllPage({ params }: PageProps) {
                     onViewPaper={setSelectedPaperForView}
                     onBookmarkToggle={handleBookmarkToggle}
                     onCompareSelect={handleCompareSelect}
-                    onGenerateSummary={setSelectedPaperForSummary}
                     onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                     onSavePaper={handleSavePaper}
                   />
@@ -756,7 +840,6 @@ export default function CatchAllPage({ params }: PageProps) {
                   onViewPaper={setSelectedPaperForView}
                   onBookmarkToggle={handleBookmarkToggle}
                   onCompareSelect={handleCompareSelect}
-                  onGenerateSummary={setSelectedPaperForSummary}
                   onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                   onSavePaper={handleSavePaper}
                 />
@@ -825,7 +908,6 @@ export default function CatchAllPage({ params }: PageProps) {
                   onViewPaper={setSelectedPaperForView}
                   onBookmarkToggle={handleBookmarkToggle}
                   onCompareSelect={handleCompareSelect}
-                  onGenerateSummary={setSelectedPaperForSummary}
                   onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                   onSavePaper={handleSavePaper}
                 />
@@ -847,30 +929,33 @@ export default function CatchAllPage({ params }: PageProps) {
                   <GenericExplorer viewId="models" />
                 </div>
               </div>
-            )}
-
-            {/* Fallback View Panel */}
-            {!['home', 'tool-graph', 'latest-papers', 'submit-paper', 'lib-bookmarks', 'bookmarks', 'github-stars', 'most-cited', 'lib-reading'].includes(currentView) && !isExplorerView && (
-              <div className="p-12 bg-white border border-[#ECECEC] rounded-md text-center space-y-4">
-                <h3 className="font-serif font-bold text-base text-[#111111] capitalize">
-                  {currentView.replace(/-/g, ' ')} Explorer
-                </h3>
-                <p className="text-xs text-[#666666] font-serif max-w-sm mx-auto leading-relaxed">
-                  You are currently browsing the dedicated {currentView.replace(/-/g, ' ')} view inside the GraphOne AI Research environment.
-                </p>
-                <button
-                  onClick={() => handleViewChange('home')}
-                  className="px-4 py-2 bg-[#FF6B35] hover:bg-[#FF7F50] text-white text-xs font-serif rounded transition-all cursor-pointer border-0"
-                >
-                  Return to Dashboard
-                </button>
+            )}             {/* Catch-all for sub-views showing filtered lists of papers */}
+            {!['home', 'tool-graph', 'latest-papers', 'submit-paper', 'lib-bookmarks', 'bookmarks', 'github-stars', 'most-cited', 'lib-reading', 'reading'].includes(currentView) && !isExplorerView && (
+              <div className="flex flex-col gap-6 text-left">
+                <div className="flex flex-col gap-1 pb-3 mb-2 border-b border-[#ECECEC]">
+                  <h2 className="font-serif font-bold text-lg text-[#111111] capitalize">
+                    {getViewMetadata(currentView).title}
+                  </h2>
+                  <p className="text-xs text-[#666666] font-serif leading-relaxed">
+                    {getViewMetadata(currentView).desc}
+                  </p>
+                </div>
+                {getFilteredPapers(getPapersForView(currentView)).length > 0 ? (
+                  <TrendingPapers
+                    papers={getFilteredPapers(getPapersForView(currentView))}
+                    onViewPaper={setSelectedPaperForView}
+                    onBookmarkToggle={handleBookmarkToggle}
+                    onCompareSelect={handleCompareSelect}
+                    onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
+                    onSavePaper={handleSavePaper}
+                  />
+                ) : (
+                  <div className="p-12 border border-[#ECECEC] rounded text-center space-y-4 font-serif text-xs text-[#666666]">
+                    No papers indexed in this category yet.
+                  </div>
+                )}
               </div>
             )}
-          </div>
-
-          {/* Footer at the end of the scroll pane */}
-          <div className="mt-12">
-            <Footer />
           </div>
 
         </div>

@@ -12,7 +12,6 @@ interface SearchBarProps {
 
 export default function SearchBar({ 
   placeholder = "Search papers, methods, tasks, organizations...", 
-  variant = 'navbar',
   value = '',
   onChange
 }: SearchBarProps) {

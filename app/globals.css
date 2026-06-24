@@ -45,6 +45,8 @@
   --color-success: var(--success);
   
   --font-sans: "Times New Roman", Times, Georgia, serif;
+  --font-serif: "Times New Roman", Times, Georgia, serif;
+  --font-mono: "Times New Roman", Times, Georgia, serif;
   --font-display: "Times New Roman", Times, Georgia, serif;
   
   --shadow-premium: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -53,8 +55,12 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: "Times New Roman", Times, Georgia, serif !important;
   min-height: 100vh;
+}
+
+body, input, button, select, textarea, div, span, p, a, h1, h2, h3, h4, h5, h6 {
+  font-family: "Times New Roman", Times, Georgia, serif !important;
 }
 
 /* Glassmorphism custom classes - adjusted to minimal clean style */
