@@ -1,32 +1,43 @@
 'use client';
 
 import React from 'react';
-import { X, GitCommit, Database, Milestone } from 'lucide-react';
+import { X, GitCommit, Database, Trophy, Award, Landmark } from 'lucide-react';
 import { Paper } from '@/types';
 
 interface CompareModalProps {
-  paper1: Paper;
-  paper2: Paper;
+  papers: Paper[];
   onClose: () => void;
 }
 
-export default function CompareModal({ paper1, paper2, onClose }: CompareModalProps) {
+export default function CompareModal({ papers, onClose }: CompareModalProps) {
+  const getGridColsClass = (count: number) => {
+    if (count === 2) return 'grid-cols-1 md:grid-cols-2';
+    if (count === 3) return 'grid-cols-1 md:grid-cols-3';
+    return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4';
+  };
+
+  const getColSpanClass = (count: number) => {
+    if (count === 2) return 'grid-cols-2';
+    if (count === 3) return 'grid-cols-3';
+    return 'grid-cols-2 lg:grid-cols-4';
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div onClick={onClose} className="fixed inset-0 bg-black/45 backdrop-blur-sm" />
+      <div onClick={onClose} className="fixed inset-0 bg-black/50 backdrop-blur-xs" />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-4xl bg-card border border-border-warm rounded-3xl shadow-xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-7xl bg-white border border-[#ECECEC] rounded-md shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-border-warm bg-accent/10">
+        <div className="flex items-center justify-between p-5 border-b border-[#ECECEC] bg-gray-50/50">
           <div>
-            <h3 className="font-extrabold text-base text-text-primary tracking-tight">Compare Research Papers</h3>
-            <p className="text-xs text-text-secondary">Side-by-side structural comparison of AI research breakthroughs</p>
+            <h3 className="font-serif font-bold text-base text-[#111111] tracking-tight">Compare Research Papers</h3>
+            <p className="text-xs text-[#666666] font-serif">Side-by-side structural comparison of AI research breakthroughs ({papers.length} papers selected)</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-accent/40 text-text-secondary hover:text-primary transition-colors cursor-pointer"
+            className="p-2 rounded hover:bg-gray-100 text-[#666666] hover:text-[#FF6B35] transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -34,122 +45,130 @@ export default function CompareModal({ paper1, paper2, onClose }: CompareModalPr
 
         {/* Comparison Grid */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className={`grid gap-6 ${getGridColsClass(papers.length)}`}>
             
-            {/* Paper 1 Panel */}
-            <div className="p-5 rounded-2xl border border-border-warm bg-accent/5 flex flex-col justify-between">
-              <div>
-                <span className="inline-flex px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider mb-3">
-                  Baseline
-                </span>
-                <h4 className="font-extrabold text-base text-text-primary mb-2 line-clamp-2">
-                  {paper1.title}
-                </h4>
-                <p className="text-xs font-semibold text-primary/90 mb-1">{paper1.organization}</p>
-                <p className="text-[11px] text-text-secondary mb-4">{paper1.authors.join(', ')}</p>
-                <p className="text-xs text-text-secondary leading-relaxed italic bg-card p-3.5 rounded-xl border border-border-warm/70">
-                  &ldquo;{paper1.summary}&rdquo;
-                </p>
-              </div>
+            {papers.map((paper, index) => (
+              <div 
+                key={paper.id} 
+                className="p-5 rounded border border-[#ECECEC] bg-gray-50/30 flex flex-col justify-between space-y-4"
+              >
+                <div>
+                  <span className="inline-flex px-2 py-0.5 rounded text-[9px] font-bold bg-[#FFF2EB] text-[#FF6B35] border border-[#FF6B35]/15 uppercase tracking-wider mb-3">
+                    Paper #{index + 1}
+                  </span>
+                  <h4 className="font-serif font-bold text-sm text-[#111111] mb-2 line-clamp-2 leading-snug">
+                    {paper.title}
+                  </h4>
+                  <p className="text-[11px] font-semibold text-[#FF6B35] mb-1">{paper.organization || 'Independent Research'}</p>
+                  <p className="text-[10px] text-[#666666] mb-4 truncate font-serif">{paper.authors.join(', ')}</p>
+                  <p className="text-xs text-[#444444] font-serif leading-relaxed italic bg-white p-3.5 rounded border border-[#ECECEC] line-clamp-4">
+                    &ldquo;{paper.summary}&rdquo;
+                  </p>
+                </div>
 
-              {/* Specs */}
-              <div className="grid grid-cols-2 gap-3.5 mt-5 pt-5 border-t border-border-warm/60">
-                <div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Citations</span>
-                  <p className="text-sm font-extrabold text-text-primary mt-0.5">{paper1.citations.toLocaleString()}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Stars</span>
-                  <p className="text-sm font-extrabold text-text-primary mt-0.5">{(paper1.stars || 0).toLocaleString()}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Impact Score</span>
-                  <p className="text-sm font-extrabold text-primary mt-0.5">{paper1.impact || 'N/A'}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Velocity</span>
-                  <p className="text-sm font-extrabold text-emerald-600 mt-0.5">{paper1.velocity || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Paper 2 Panel */}
-            <div className="p-5 rounded-2xl border border-border-warm bg-accent/5 flex flex-col justify-between">
-              <div>
-                <span className="inline-flex px-2 py-0.5 rounded-md text-[9px] font-bold bg-secondary/15 text-secondary border border-secondary/20 uppercase tracking-wider mb-3">
-                  Comparison
-                </span>
-                <h4 className="font-extrabold text-base text-text-primary mb-2 line-clamp-2">
-                  {paper2.title}
-                </h4>
-                <p className="text-xs font-semibold text-secondary mb-1">{paper2.organization}</p>
-                <p className="text-[11px] text-text-secondary mb-4">{paper2.authors.join(', ')}</p>
-                <p className="text-xs text-text-secondary leading-relaxed italic bg-card p-3.5 rounded-xl border border-border-warm/70">
-                  &ldquo;{paper2.summary}&rdquo;
-                </p>
-              </div>
-
-              {/* Specs */}
-              <div className="grid grid-cols-2 gap-3.5 mt-5 pt-5 border-t border-border-warm/60">
-                <div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Citations</span>
-                  <p className="text-sm font-extrabold text-text-primary mt-0.5">{paper2.citations.toLocaleString()}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Stars</span>
-                  <p className="text-sm font-extrabold text-text-primary mt-0.5">{(paper2.stars || 0).toLocaleString()}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Impact Score</span>
-                  <p className="text-sm font-extrabold text-secondary mt-0.5">{paper2.impact || 'N/A'}</p>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Velocity</span>
-                  <p className="text-sm font-extrabold text-emerald-600 mt-0.5">{paper2.velocity || 'N/A'}</p>
+                {/* Specs */}
+                <div className="grid grid-cols-2 gap-3.5 pt-4 border-t border-[#ECECEC] text-xs font-serif">
+                  <div>
+                    <span className="text-[10px] font-bold text-[#888888] uppercase tracking-wider">Citations</span>
+                    <p className="text-sm font-bold text-[#111111] mt-0.5">{paper.citations.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-[#888888] uppercase tracking-wider">GitHub Stars</span>
+                    <p className="text-sm font-bold text-[#111111] mt-0.5">{(paper.stars || 0).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-[#888888] uppercase tracking-wider">Upvotes</span>
+                    <p className="text-sm font-bold text-[#111111] mt-0.5">{(paper.upvotes || 0).toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-[#888888] uppercase tracking-wider">Reading Time</span>
+                    <p className="text-sm font-bold text-[#FF6B35] mt-0.5">{paper.readingTime || 'N/A'}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
 
           </div>
 
           {/* Connected Entities Table */}
-          <div className="p-5 border border-border-warm rounded-2xl bg-card">
-            <h5 className="font-bold text-xs text-text-primary uppercase tracking-wider mb-4">Entity Grounding</h5>
+          <div className="p-5 border border-[#ECECEC] rounded bg-white space-y-4">
+            <h5 className="font-serif font-bold text-xs text-[#111111] uppercase tracking-wider pb-2 border-b border-[#ECECEC]">
+              Grounding & Reference Matrices
+            </h5>
             
             <div className="space-y-4">
-              {/* Models */}
-              <div className="flex items-center justify-between pb-3 border-b border-border-warm/50 text-xs">
-                <span className="font-bold text-text-secondary flex items-center gap-1.5 shrink-0">
-                  <GitCommit size={14} className="text-primary" />
-                  Related Models
+              {/* Tasks */}
+              <div className="flex flex-col md:flex-row md:items-start justify-between pb-3 border-b border-[#ECECEC] text-xs font-serif">
+                <span className="font-bold text-[#666666] flex items-center gap-1.5 shrink-0 py-1">
+                  <Award size={14} className="text-[#FF6B35]" />
+                  Tasks
                 </span>
-                <div className="grid grid-cols-2 gap-6 w-[70%] text-right font-semibold text-text-primary">
-                  <span className="truncate">{paper1.models?.join(', ') || 'None'}</span>
-                  <span className="truncate">{paper2.models?.join(', ') || 'None'}</span>
+                <div className={`grid gap-4 w-full md:w-[80%] text-left md:text-right font-semibold text-[#111111] ${getColSpanClass(papers.length)}`}>
+                  {papers.map(p => (
+                    <div key={p.id} className="flex flex-wrap md:justify-end gap-1">
+                      {p.tasks && p.tasks.slice(0, 3).map(t => (
+                        <span key={t} className="px-1.5 py-0.5 rounded text-[9px] bg-gray-100 border border-gray-200">{t}</span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Methods */}
+              <div className="flex flex-col md:flex-row md:items-start justify-between pb-3 border-b border-[#ECECEC] text-xs font-serif">
+                <span className="font-bold text-[#666666] flex items-center gap-1.5 shrink-0 py-1">
+                  <GitCommit size={14} className="text-[#3B82F6]" />
+                  Methods
+                </span>
+                <div className={`grid gap-4 w-full md:w-[80%] text-left md:text-right font-semibold text-[#111111] ${getColSpanClass(papers.length)}`}>
+                  {papers.map(p => (
+                    <div key={p.id} className="flex flex-wrap md:justify-end gap-1">
+                      {p.methods && p.methods.slice(0, 3).map(m => (
+                        <span key={m} className="px-1.5 py-0.5 rounded text-[9px] bg-gray-100 border border-gray-200">{m}</span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Models */}
+              <div className="flex flex-col md:flex-row md:items-start justify-between pb-3 border-b border-[#ECECEC] text-xs font-serif">
+                <span className="font-bold text-[#666666] flex items-center gap-1.5 shrink-0 py-1">
+                  <Landmark size={14} className="text-purple-500" />
+                  Models Used
+                </span>
+                <div className={`grid gap-4 w-full md:w-[80%] text-left md:text-right font-semibold text-[#111111] ${getColSpanClass(papers.length)}`}>
+                  {papers.map(p => (
+                    <span key={p.id} className="truncate">{p.models?.join(', ') || 'None'}</span>
+                  ))}
                 </div>
               </div>
 
               {/* Datasets */}
-              <div className="flex items-center justify-between pb-3 border-b border-border-warm/50 text-xs">
-                <span className="font-bold text-text-secondary flex items-center gap-1.5 shrink-0">
+              <div className="flex flex-col md:flex-row md:items-start justify-between pb-3 border-b border-[#ECECEC] text-xs font-serif">
+                <span className="font-bold text-[#666666] flex items-center gap-1.5 shrink-0 py-1">
                   <Database size={14} className="text-emerald-500" />
-                  Related Datasets
+                  Datasets Used
                 </span>
-                <div className="grid grid-cols-2 gap-6 w-[70%] text-right font-semibold text-text-primary">
-                  <span className="truncate">{paper1.datasets?.join(', ') || 'None'}</span>
-                  <span className="truncate">{paper2.datasets?.join(', ') || 'None'}</span>
+                <div className={`grid gap-4 w-full md:w-[80%] text-left md:text-right font-semibold text-[#111111] ${getColSpanClass(papers.length)}`}>
+                  {papers.map(p => (
+                    <span key={p.id} className="truncate">{p.datasets?.join(', ') || 'None'}</span>
+                  ))}
                 </div>
               </div>
 
               {/* Benchmarks */}
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-text-secondary flex items-center gap-1.5 shrink-0">
-                  <Milestone size={14} className="text-amber-500" />
-                  Primary Benchmark
+              <div className="flex flex-col md:flex-row md:items-start justify-between text-xs font-serif">
+                <span className="font-bold text-[#666666] flex items-center gap-1.5 shrink-0 py-1">
+                  <Trophy size={14} className="text-amber-500" />
+                  Benchmarks
                 </span>
-                <div className="grid grid-cols-2 gap-6 w-[70%] text-right font-semibold text-text-primary">
-                  <span>{paper1.benchmarks || 'N/A'}</span>
-                  <span>{paper2.benchmarks || 'N/A'}</span>
+                <div className={`grid gap-4 w-full md:w-[80%] text-left md:text-right font-semibold text-[#111111] ${getColSpanClass(papers.length)}`}>
+                  {papers.map(p => (
+                    <span key={p.id} className="truncate text-xs font-serif font-bold text-[#FF6B35]">
+                      {p.benchmarks || 'N/A'}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
@@ -158,10 +177,10 @@ export default function CompareModal({ paper1, paper2, onClose }: CompareModalPr
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 bg-accent/5 border-t border-border-warm flex justify-end gap-3.5">
+        <div className="p-4 bg-gray-50 border-t border-[#ECECEC] flex justify-end gap-3.5">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-border-warm rounded-xl text-xs font-semibold text-text-secondary hover:text-primary hover:bg-accent/10 transition-all cursor-pointer"
+            className="px-4 py-2 border border-[#ECECEC] bg-white rounded text-xs font-serif text-[#666666] hover:text-[#FF6B35] hover:bg-gray-50 transition-all cursor-pointer"
           >
             Close Comparison
           </button>

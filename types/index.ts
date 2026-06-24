@@ -18,6 +18,19 @@ export interface Paper {
   velocity?: string;
   thumbnailBg?: string;
   upvotes?: number;
+  isSaved?: boolean;
+  readingTime?: string;
+  popularityScore?: number;
+  benchmarkResults?: any[];
+  tasks?: string[];
+  methods?: string[];
+  relatedPapers?: any[];
+  citationsList?: any[];
+  hfThumbnail?: string;
+  arxivThumbnail?: string;
+  pwcThumbnail?: string;
+  spaces?: string[];
+  githubRepo?: string;
 }
 
 export interface Model {

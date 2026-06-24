@@ -10,7 +10,6 @@ import TrendingPapers from '@/components/TrendingPapers';
 import CompareModal from '@/components/CompareModal';
 import SummaryModal from '@/components/SummaryModal';
 import GenericExplorer from '@/components/GenericExplorer';
-import { trendingPapers as initialPapers } from '@/data/mockData';
 import { Paper } from '@/types';
 import { 
   X, Sparkles, Network, Bookmark, PlusCircle, BookOpenCheck
@@ -41,8 +40,9 @@ export default function CatchAllPage({ params }: PageProps) {
   const currentView = getViewIdFromSlug(slug);
 
   // Home Page states
-  const [papers, setPapers] = useState<Paper[]>(initialPapers);
-  const [selectedPaperForView, setSelectedPaperForView] = useState<Paper | null>(null);
+  const [papers, setPapers] = useState<Paper[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedPaperForSummary, setSelectedPaperForSummary] = useState<Paper | null>(null);
   const [compareList, setCompareList] = useState<Paper[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
@@ -73,6 +73,37 @@ export default function CatchAllPage({ params }: PageProps) {
       return titleMatch || authorsMatch || orgMatch || categoryMatch || modelsMatch || datasetsMatch || benchmarksMatch;
     });
   };
+
+  const fetchTrendingPapers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch('/api/papers/trending');
+      if (!res.ok) throw new Error('Failed to fetch trending papers');
+      const data = await res.json();
+      
+      // Merge with localStorage bookmark/saved state
+      const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+      const saved = JSON.parse(localStorage.getItem('saved') || '[]');
+      
+      const merged = data.map((p: Paper) => ({
+        ...p,
+        isBookmarked: bookmarks.includes(p.id),
+        isSaved: saved.includes(p.id)
+      }));
+      setPapers(merged);
+    } catch (err: unknown) {
+      const errorMsg = (err as Error).message;
+      console.error(err);
+      setError(errorMsg || 'An error occurred while loading papers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrendingPapers();
+  }, []);
 
   useEffect(() => {
     if (currentView === 'submit-paper') {
@@ -110,8 +141,25 @@ export default function CatchAllPage({ params }: PageProps) {
 
   // Card actions
   const handleBookmarkToggle = (paper: Paper) => {
-    setPapers(prev => prev.map(p => p.id === paper.id ? { ...p, isBookmarked: !p.isBookmarked } : p));
-    triggerToast(paper.isBookmarked ? 'Removed bookmark' : 'Bookmarked paper successfully');
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+    const timestamps = JSON.parse(localStorage.getItem('bookmark_timestamps') || '{}');
+    
+    let updated;
+    let isBookmarkedNow = false;
+    if (bookmarks.includes(paper.id)) {
+      updated = bookmarks.filter((id: string) => id !== paper.id);
+      delete timestamps[paper.id];
+      triggerToast(`Removed bookmark for "${paper.title}"`);
+    } else {
+      updated = [...bookmarks, paper.id];
+      timestamps[paper.id] = Date.now();
+      isBookmarkedNow = true;
+      triggerToast(`Bookmarked "${paper.title}" successfully`);
+    }
+    
+    localStorage.setItem('bookmarks', JSON.stringify(updated));
+    localStorage.setItem('bookmark_timestamps', JSON.stringify(timestamps));
+    setPapers(prev => prev.map(p => p.id === paper.id ? { ...p, isBookmarked: isBookmarkedNow } : p));
   };
 
   const handleCompareSelect = (paper: Paper) => {
@@ -121,23 +169,35 @@ export default function CatchAllPage({ params }: PageProps) {
       return;
     }
 
-    if (compareList.length >= 2) {
-      triggerToast('Comparison limit reached (max 2 papers)');
+    if (compareList.length >= 4) {
+      triggerToast('Comparison limit reached (max 4 papers)');
       return;
     }
 
     const updated = [...compareList, paper];
     setCompareList(updated);
-
+    
     if (updated.length === 2) {
-      setShowCompareModal(true);
+      triggerToast('Selected 2 papers. You can add up to 4, then click Compare Now.');
     } else {
-      triggerToast('Select one more paper to compare');
+      triggerToast(`Added to compare list (${updated.length}/4)`);
     }
   };
 
   const handleSavePaper = (paper: Paper) => {
-    triggerToast(`Added "${paper.title}" to library reading list`);
+    const saved = JSON.parse(localStorage.getItem('saved') || '[]');
+    let updated;
+    let isSavedNow = false;
+    if (saved.includes(paper.id)) {
+      updated = saved.filter((id: string) => id !== paper.id);
+      triggerToast(`Removed "${paper.title}" from library reading list`);
+    } else {
+      updated = [...saved, paper.id];
+      isSavedNow = true;
+      triggerToast(`Added "${paper.title}" to library reading list`);
+    }
+    localStorage.setItem('saved', JSON.stringify(updated));
+    setPapers(prev => prev.map(p => p.id === paper.id ? { ...p, isSaved: isSavedNow } : p));
   };
 
   const triggerToast = (msg: string) => {
@@ -171,7 +231,7 @@ export default function CatchAllPage({ params }: PageProps) {
         return papers.filter(p => p.isBookmarked);
       case 'lib-reading':
       case 'reading':
-        return papers.filter(p => p.id === '1' || p.id === '3' || p.id === '5' || p.id === '10');
+        return papers.filter(p => p.isSaved);
       
       // Tasks
       case 'agents':
@@ -297,10 +357,9 @@ export default function CatchAllPage({ params }: PageProps) {
       </AnimatePresence>
 
       {/* Compare Modal */}
-      {showCompareModal && compareList.length === 2 && (
+      {showCompareModal && compareList.length >= 2 && (
         <CompareModal
-          paper1={compareList[0]}
-          paper2={compareList[1]}
+          papers={compareList}
           onClose={() => {
             setShowCompareModal(false);
             setCompareList([]);
@@ -389,60 +448,6 @@ export default function CatchAllPage({ params }: PageProps) {
           paper={selectedPaperForSummary}
           onClose={() => setSelectedPaperForSummary(null)}
         />
-      )}
-
-      {/* Detailed Paper Viewer Modal */}
-      {selectedPaperForView && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div onClick={() => setSelectedPaperForView(null)} className="fixed inset-0 bg-black/35 backdrop-blur-xs" />
-          <div className="relative w-full max-w-2xl bg-white border border-[#ECECEC] rounded-md shadow-xl overflow-hidden z-10 flex flex-col max-h-[85vh] text-left">
-            <div className="flex items-center justify-between p-5 border-b border-[#ECECEC]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#FF6B35] bg-[#FFF2EB] px-2 py-0.5 rounded border border-[#FF6B35]/15">
-                {selectedPaperForView.category}
-              </span>
-              <button
-                onClick={() => setSelectedPaperForView(null)}
-                className="p-1 rounded hover:bg-gray-50 text-[#666666] hover:text-[#FF6B35] transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto space-y-4">
-              <h3 className="font-serif font-bold text-xl text-[#111111] leading-snug">
-                {selectedPaperForView.title}
-              </h3>
-              <p className="text-xs font-serif font-bold text-[#FF6B35]">{selectedPaperForView.organization}</p>
-              <p className="text-xs font-serif text-[#666666]">{selectedPaperForView.authors.join(', ')} • {selectedPaperForView.pubDate}</p>
-              
-              <div className="pt-4 border-t border-[#ECECEC] space-y-2">
-                <h4 className="font-serif font-bold text-sm text-[#111111] tracking-wider">Executive Overview</h4>
-                <p className="text-xs text-[#666666] font-serif leading-relaxed bg-gray-50 p-4 border border-[#ECECEC] rounded">
-                  {selectedPaperForView.summary}
-                </p>
-              </div>
-            </div>
-            
-            <div className="p-4 bg-gray-50 border-t border-[#ECECEC] flex justify-end gap-2">
-              <button
-                onClick={() => handleBookmarkToggle(selectedPaperForView)}
-                className="px-4 py-2 border border-[#ECECEC] rounded text-xs font-serif text-[#666666] hover:text-[#FF6B35] hover:bg-white transition-all cursor-pointer"
-              >
-                {selectedPaperForView.isBookmarked ? 'Remove Bookmark' : 'Bookmark Paper'}
-              </button>
-              <button
-                onClick={() => {
-                  const paper = selectedPaperForView;
-                  setSelectedPaperForView(null);
-                  setSelectedPaperForSummary(paper);
-                }}
-                className="px-4 py-2 bg-[#FF6B35] hover:bg-[#FF7F50] text-white text-xs font-serif rounded transition-all cursor-pointer"
-              >
-                Generate AI Summary
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* Notifications Drawer */}
@@ -620,11 +625,14 @@ export default function CatchAllPage({ params }: PageProps) {
                 {/* Trending papers feed */}
                 <TrendingPapers
                   papers={getFilteredPapers(papers)}
-                  onViewPaper={setSelectedPaperForView}
+                  isLoading={loading}
+                  error={error}
+                  onRetry={fetchTrendingPapers}
                   onBookmarkToggle={handleBookmarkToggle}
                   onCompareSelect={handleCompareSelect}
                   onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                   onSavePaper={handleSavePaper}
+                  compareList={compareList}
                 />
 
                 {/* Discovery sections exactly below papers */}
@@ -784,11 +792,14 @@ export default function CatchAllPage({ params }: PageProps) {
                 </div>
                 <TrendingPapers
                   papers={getFilteredPapers(papers)}
-                  onViewPaper={setSelectedPaperForView}
+                  isLoading={loading}
+                  error={error}
+                  onRetry={fetchTrendingPapers}
                   onBookmarkToggle={handleBookmarkToggle}
                   onCompareSelect={handleCompareSelect}
                   onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                   onSavePaper={handleSavePaper}
+                  compareList={compareList}
                 />
               </div>
             )}
@@ -803,11 +814,14 @@ export default function CatchAllPage({ params }: PageProps) {
                 {getFilteredPapers(papers.filter(p => p.isBookmarked)).length > 0 ? (
                   <TrendingPapers
                     papers={getFilteredPapers(papers.filter(p => p.isBookmarked))}
-                    onViewPaper={setSelectedPaperForView}
+                    isLoading={loading}
+                    error={error}
+                    onRetry={fetchTrendingPapers}
                     onBookmarkToggle={handleBookmarkToggle}
                     onCompareSelect={handleCompareSelect}
                     onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                     onSavePaper={handleSavePaper}
+                    compareList={compareList}
                   />
                 ) : (
                   <div className="p-12 border border-[#ECECEC] rounded text-center space-y-4">
@@ -837,11 +851,14 @@ export default function CatchAllPage({ params }: PageProps) {
                 </div>
                 <TrendingPapers
                   papers={getFilteredPapers(getSortedPapers(currentView))}
-                  onViewPaper={setSelectedPaperForView}
+                  isLoading={loading}
+                  error={error}
+                  onRetry={fetchTrendingPapers}
                   onBookmarkToggle={handleBookmarkToggle}
                   onCompareSelect={handleCompareSelect}
                   onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                   onSavePaper={handleSavePaper}
+                  compareList={compareList}
                 />
               </div>
             )}
@@ -905,11 +922,14 @@ export default function CatchAllPage({ params }: PageProps) {
                 </div>
                 <TrendingPapers
                   papers={getFilteredPapers(papers)}
-                  onViewPaper={setSelectedPaperForView}
+                  isLoading={loading}
+                  error={error}
+                  onRetry={fetchTrendingPapers}
                   onBookmarkToggle={handleBookmarkToggle}
                   onCompareSelect={handleCompareSelect}
                   onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                   onSavePaper={handleSavePaper}
+                  compareList={compareList}
                 />
               </div>
             )}
@@ -943,11 +963,14 @@ export default function CatchAllPage({ params }: PageProps) {
                 {getFilteredPapers(getPapersForView(currentView)).length > 0 ? (
                   <TrendingPapers
                     papers={getFilteredPapers(getPapersForView(currentView))}
-                    onViewPaper={setSelectedPaperForView}
+                    isLoading={loading}
+                    error={error}
+                    onRetry={fetchTrendingPapers}
                     onBookmarkToggle={handleBookmarkToggle}
                     onCompareSelect={handleCompareSelect}
                     onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
                     onSavePaper={handleSavePaper}
+                    compareList={compareList}
                   />
                 ) : (
                   <div className="p-12 border border-[#ECECEC] rounded text-center space-y-4 font-serif text-xs text-[#666666]">
@@ -957,6 +980,54 @@ export default function CatchAllPage({ params }: PageProps) {
               </div>
             )}
           </div>
+
+      {/* Floating Compare Bar */}
+      {compareList.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#ECECEC] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] p-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-sans font-bold text-[#FF6B35] bg-[#FFF2EB] px-2.5 py-1 rounded border border-[#FF6B35]/15 uppercase tracking-wider">
+              {compareList.length} Selected
+            </span>
+            <span className="text-xs font-serif text-[#666666] hidden sm:inline text-left">
+              Select 2 to 4 papers to compare side-by-side.
+            </span>
+            <div className="flex gap-2">
+              {compareList.map(p => (
+                <div key={p.id} className="text-[10px] bg-gray-50 border border-gray-200 px-2 py-0.5 rounded flex items-center gap-1">
+                  <span className="truncate max-w-[120px] font-serif font-semibold">{p.title}</span>
+                  <button 
+                    onClick={() => handleCompareSelect(p)} 
+                    className="hover:text-red-500 font-bold transition-colors cursor-pointer text-gray-400 border-0 bg-transparent p-0"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCompareList([])}
+              className="px-4 py-2 border border-[#ECECEC] rounded text-xs font-serif text-[#666666] hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              Clear
+            </button>
+            <button 
+              onClick={() => {
+                if (compareList.length < 2) {
+                  triggerToast('Select at least 2 papers to compare');
+                } else {
+                  setShowCompareModal(true);
+                }
+              }}
+              className="px-4 py-2 bg-[#FF6B35] hover:bg-[#FF7F50] text-white text-xs font-semibold font-serif rounded transition-all cursor-pointer border-0"
+              disabled={compareList.length < 2}
+            >
+              Compare Now
+            </button>
+          </div>
+        </div>
+      )}
 
         </div>
       </div>
