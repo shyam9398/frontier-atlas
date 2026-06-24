@@ -14,6 +14,7 @@ export const trendingPapers: Paper[] = [
     organization: 'OpenAI & Figure',
     summary: 'Introduces an end-to-end foundation model for humanoid robot control. Demonstrates zero-shot transfer for physical tasks and adaptive pathing in real-time.',
     stars: 2400,
+    upvotes: 412,
     models: ['GROOT-Base', 'CLIP-ViT'],
     datasets: ['RoboNet v2', 'Ego4D'],
     benchmarks: 'Task Success: 94%',
@@ -34,6 +35,7 @@ export const trendingPapers: Paper[] = [
     organization: 'Google DeepMind',
     summary: 'Re-evaluates scaling parameters of large autoregressive models, proving that compute-optimal models require training on more data rather than just increasing parameters.',
     stars: 1800,
+    upvotes: 287,
     models: ['Chinchilla-70B', 'Gopher'],
     datasets: ['MassiveText', 'C4'],
     benchmarks: 'MMLU: 67.5%',
@@ -54,6 +56,7 @@ export const trendingPapers: Paper[] = [
     organization: 'Alibaba Cloud',
     summary: 'Presents a technical report on the Qwen3 suite, outlining data preprocessing pipelines, RLHF methodology, and cross-lingual alignment architectures.',
     stars: 3200,
+    upvotes: 521,
     models: ['Qwen3-72B-Chat', 'Qwen3-VL'],
     datasets: ['Qwen-WebText', 'RefinedWeb'],
     benchmarks: 'GSM8k: 89.2%',
@@ -74,6 +77,7 @@ export const trendingPapers: Paper[] = [
     organization: 'Meta AI & DAMO Lab',
     summary: 'A specialized multimodal foundation model for spatial-temporal video understanding. Integrates visual features into a LLM tokenizer to enable raw sequence reasoning.',
     stars: 1500,
+    upvotes: 198,
     models: ['VideoLLaMA-3-8B', 'Llama 3'],
     datasets: ['Video-CC3M', 'ActivityNet'],
     benchmarks: 'Video-MME: 56.4%',
@@ -94,19 +98,125 @@ export const trendingPapers: Paper[] = [
     organization: 'Google DeepMind',
     summary: 'Presents a world model reinforcement learning agent that scales successfully to diverse tasks without tuning hyperparameters. Achieves superhuman Atari scores.',
     stars: 920,
+    upvotes: 167,
     models: ['DreamerV3-RL', 'RSSM'],
     datasets: ['Atari-57', 'Crafter'],
     benchmarks: 'Atari Score: 98.4%',
     impact: '94%',
     velocity: '+45/mo',
     thumbnailBg: 'from-blue-400 to-cyan-600'
+  },
+  {
+    id: '6',
+    title: 'GLM-5.2: Built for Long-Horizon Tasks',
+    authors: ['GLM Team', 'Z.ai Research'],
+    pubDate: 'Jun 16, 2026',
+    citations: 30,
+    references: 12,
+    source: 'arXiv',
+    isBookmarked: false,
+    category: 'Agents',
+    organization: 'Z.ai',
+    summary: 'GLM-5.2 is Z.ai\'s latest flagship open-weight model for long-horizon agentic engineering. The release extends GLM-5.1 with a solid 1M-token context, IndexShare sparse-attention efficiency, improved MTP speculative decoding, and flexible thinking-effort controls.',
+    stars: 120,
+    upvotes: 84,
+    models: ['GLM-5.2'],
+    datasets: ['AIME 2026', 'HMMT Feb 2026', 'PostTrainBench'],
+    benchmarks: 'FrontierSWE: #3',
+    impact: '97%',
+    velocity: '+20/mo',
+    thumbnailBg: 'from-violet-400 to-purple-600'
+  },
+  {
+    id: '7',
+    title: 'Deep Residual Learning for Image Recognition',
+    authors: ['Kaiming He', 'Xiangyu Zhang', 'Shaoqing Ren', 'Jian Sun'],
+    pubDate: 'Dec 10, 2015',
+    citations: 231200,
+    references: 120,
+    source: 'arXiv',
+    isBookmarked: false,
+    category: 'Computer Vision',
+    organization: 'Microsoft Research',
+    summary: 'Deeper neural networks are more difficult to train. We present a residual learning framework to ease the training of networks that are substantially deeper than those used previously. We provide comprehensive empirical evidence showing that these residual networks are easier to optimize.',
+    stars: 99100,
+    upvotes: 1240,
+    models: ['ResNet-152', 'ResNet-50'],
+    datasets: ['ImageNet (ILSVRC 2015)', 'COCO 2015'],
+    benchmarks: 'ImageNet error: 3.57%',
+    impact: '100%',
+    velocity: '+1800/mo',
+    thumbnailBg: 'from-teal-400 to-emerald-600'
+  },
+  {
+    id: '8',
+    title: 'Attention Is All You Need',
+    authors: ['Ashish Vaswani', 'Noam Shazeer', 'Niki Parmar', 'Jakob Uszkoreit', 'et al.'],
+    pubDate: 'Jun 12, 2017',
+    citations: 180900,
+    references: 98,
+    source: 'arXiv',
+    isBookmarked: false,
+    category: 'NLP',
+    organization: 'Google Brain',
+    summary: 'The dominant sequence transduction models are based on complex recurrent or convolutional neural networks. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.',
+    stars: 78300,
+    upvotes: 1890,
+    models: ['Transformer-Base', 'Transformer-Big'],
+    datasets: ['WMT 2014 En-Fr', 'WMT 2014 En-De'],
+    benchmarks: 'EN-DE BLEU: 28.4',
+    impact: '100%',
+    velocity: '+2100/mo',
+    thumbnailBg: 'from-amber-400 to-orange-600'
+  },
+  {
+    id: '9',
+    title: 'Generative Adversarial Nets',
+    authors: ['Ian J. Goodfellow', 'Jean Pouget-Abadie', 'Mehdi Mirza', 'Bing Xu', 'David Warde-Farley', 'et al.'],
+    pubDate: 'Jun 10, 2014',
+    citations: 72400,
+    references: 64,
+    source: 'arXiv',
+    isBookmarked: false,
+    category: 'Generative AI',
+    organization: 'Université de Montréal',
+    summary: 'We propose a new framework for estimating generative models via an adversarial process, in which we simultaneously train two models: a generative model G that captures the data distribution, and a discriminative model D that estimates the probability that a sample came from the training data.',
+    stars: 32100,
+    upvotes: 954,
+    models: ['GAN-Base'],
+    datasets: ['MNIST', 'CIFAR-10'],
+    benchmarks: 'FID score: 4.8',
+    impact: '99%',
+    velocity: '+850/mo',
+    thumbnailBg: 'from-fuchsia-400 to-pink-600'
+  },
+  {
+    id: '10',
+    title: 'Llama 3: Open Foundation Models',
+    authors: ['Meta AI Llama Team'],
+    pubDate: 'Jul 23, 2024',
+    citations: 450,
+    references: 154,
+    source: 'arXiv',
+    isBookmarked: false,
+    category: 'LLMs',
+    organization: 'Meta AI',
+    summary: 'We introduce a new suite of open foundation models, Llama 3, which is a collection of pretrained and instruction-tuned generative text models in 8B, 70B, and 405B sizes. Llama 3 instruction-tuned models are optimized for dialogue use cases and outperform open models on benchmarks.',
+    stars: 21500,
+    upvotes: 680,
+    models: ['Llama-3-405B', 'Llama-3-70B', 'Llama-3-8B'],
+    datasets: ['Common Crawl', 'RefinedWeb'],
+    benchmarks: 'MMLU: 88.6%',
+    impact: '98%',
+    velocity: '+620/mo',
+    thumbnailBg: 'from-blue-500 to-indigo-600'
   }
 ];
 
 export const topModels: Model[] = [
   {
     id: '1',
-    name: 'GPT-4o',
+    name: 'GPT-5',
     creator: 'OpenAI',
     date: '13 May 2024',
     popularity: 98.5,
@@ -116,42 +226,52 @@ export const topModels: Model[] = [
   },
   {
     id: '2',
-    name: 'Qwen3-72B',
-    creator: 'Alibaba',
-    date: '12 May 2024',
-    popularity: 72.1,
-    downloads: '3.1M',
-    researchMentions: 87000,
-    logoColor: 'bg-indigo-500'
-  },
-  {
-    id: '3',
     name: 'Claude 3.5 Sonnet',
     creator: 'Anthropic',
     date: '10 May 2024',
-    popularity: 56.3,
-    downloads: '2.7M',
-    researchMentions: 45000,
+    popularity: 96.4,
+    downloads: '4.8M',
+    researchMentions: 110000,
     logoColor: 'bg-amber-600'
   },
   {
-    id: '4',
+    id: '3',
     name: 'Gemini 1.5 Pro',
     creator: 'Google DeepMind',
     date: '9 May 2024',
-    popularity: 45.6,
-    downloads: '2.1M',
+    popularity: 89.1,
+    downloads: '3.2M',
     researchMentions: 96000,
     logoColor: 'bg-blue-600'
   },
   {
-    id: '5',
-    name: 'Llama 3 70B',
-    creator: 'Meta AI',
-    date: '8 May 2024',
-    popularity: 38.9,
-    downloads: '1.8M',
+    id: '4',
+    name: 'Qwen3-72B',
+    creator: 'Alibaba',
+    date: '12 May 2024',
+    popularity: 81.2,
+    downloads: '2.1M',
     researchMentions: 87000,
+    logoColor: 'bg-indigo-500'
+  },
+  {
+    id: '5',
+    name: 'DeepSeek-V3',
+    creator: 'DeepSeek AI',
+    date: '14 May 2024',
+    popularity: 92.0,
+    downloads: '1.8M',
+    researchMentions: 45000,
+    logoColor: 'bg-sky-600'
+  },
+  {
+    id: '6',
+    name: 'Llama 3.1 405B',
+    creator: 'Meta AI',
+    date: '15 May 2024',
+    popularity: 94.5,
+    downloads: '1.9M',
+    researchMentions: 98000,
     logoColor: 'bg-sky-500'
   }
 ];
@@ -286,31 +406,38 @@ export const topLabs: Lab[] = [
   },
   {
     rank: 2,
+    name: 'Anthropic',
+    papersCount: '987 papers',
+    citationsCount: '45K citations',
+    logoBg: 'bg-orange-100 text-orange-800 border-orange-200'
+  },
+  {
+    rank: 3,
     name: 'Google DeepMind',
     papersCount: '2,102 papers',
     citationsCount: '96K citations',
     logoBg: 'bg-blue-100 text-blue-800 border-blue-200'
   },
   {
-    rank: 3,
+    rank: 4,
     name: 'Meta AI',
     papersCount: '1,876 papers',
     citationsCount: '87K citations',
     logoBg: 'bg-sky-100 text-sky-800 border-sky-200'
   },
   {
-    rank: 4,
+    rank: 5,
     name: 'Microsoft Research',
     papersCount: '1,234 papers',
     citationsCount: '56K citations',
     logoBg: 'bg-amber-100 text-amber-800 border-amber-200'
   },
   {
-    rank: 5,
-    name: 'Anthropic',
-    papersCount: '987 papers',
-    citationsCount: '45K citations',
-    logoBg: 'bg-orange-100 text-orange-800 border-orange-200'
+    rank: 6,
+    name: 'Mistral AI',
+    papersCount: '624 papers',
+    citationsCount: '18K citations',
+    logoBg: 'bg-violet-100 text-violet-800 border-violet-200'
   }
 ];
 
@@ -346,23 +473,25 @@ export const featuredDatasets: DatasetItem[] = [
   { id: 'fd2', name: 'The Pile', size: '825 GB', domain: 'Language Modeling', impact: 'High', desc: 'Diverse, open-source English language dataset for training large models.', logoBg: 'from-emerald-500/10 to-teal-600/20' },
   { id: 'fd3', name: 'Common Crawl', size: 'Petabytes', domain: 'Web Corpus', impact: 'Critical', desc: 'Massive repository of raw web page data gathered over 12+ years.', logoBg: 'from-blue-500/10 to-sky-600/20' },
   { id: 'fd4', name: 'MMLU', size: '1.2 GB', domain: 'General Knowledge', impact: 'High', desc: '57 subjects covering humanities, STEM, social sciences, and more.', logoBg: 'from-pink-500/10 to-rose-600/20' },
-  { id: 'fd5', name: 'GPQA', size: '25 MB', domain: 'Advanced Reasoning', impact: 'Emerging', desc: 'Graduate-level biology, chemistry, and physics questions designed by experts.', logoBg: 'from-violet-500/10 to-indigo-600/20' }
+  { id: 'fd5', name: 'GPQA', size: '25 MB', domain: 'Advanced Reasoning', impact: 'Emerging', desc: 'Graduate-level biology, chemistry, and physics questions designed by experts.', logoBg: 'from-violet-500/10 to-indigo-600/20' },
+  { id: 'fd6', name: 'HumanEval', size: '1.5 MB', domain: 'Coding / Dev', impact: 'High', desc: 'Handcrafted coding questions to measure functional correctness of python code.', logoBg: 'from-red-500/10 to-orange-600/20' }
 ];
 
 export const benchmarkLeaderboard: BenchmarkLeaderboardItem[] = [
-  { id: 'bl1', name: 'MMLU (General)', leader: 'GPT-4o', score: '88.7%', metric: 'Accuracy (5-Shot)', totalModels: 142 },
+  { id: 'bl1', name: 'MMLU (General)', leader: 'GPT-5', score: '88.7%', metric: 'Accuracy (5-Shot)', totalModels: 142 },
   { id: 'bl2', name: 'GPQA (Advanced QA)', leader: 'Claude 3.5 Sonnet', score: '65.2%', metric: 'Accuracy (0-Shot)', totalModels: 86 },
   { id: 'bl3', name: 'HumanEval (Coding)', leader: 'Claude 3.5 Sonnet', score: '92.0%', metric: 'Pass@1', totalModels: 110 },
-  { id: 'bl4', name: 'SWE Bench (Eng)', leader: 'GPT-4o (Agentic)', score: '27.3%', metric: 'Task Solve %', totalModels: 42 },
+  { id: 'bl4', name: 'SWE Bench (Eng)', leader: 'GPT-5 (Agentic)', score: '27.3%', metric: 'Task Solve %', totalModels: 42 },
   { id: 'bl5', name: 'ARC AGI (Reasoning)', leader: 'Claude 3.5 Sonnet', score: '52.4%', metric: 'Accuracy', totalModels: 58 }
 ];
 
 export const modelRankings: ModelRanking[] = [
-  { rank: 1, name: 'GPT-4o', creator: 'OpenAI', downloads: '5.2M', popularity: '98.5%', growth: '+18%', logoColor: 'bg-emerald-500' },
+  { rank: 1, name: 'GPT-5', creator: 'OpenAI', downloads: '5.2M', popularity: '98.5%', growth: '+18%', logoColor: 'bg-emerald-500' },
   { rank: 2, name: 'Claude 3.5 Sonnet', creator: 'Anthropic', downloads: '4.8M', popularity: '96.4%', growth: '+24%', logoColor: 'bg-amber-600' },
   { rank: 3, name: 'Gemini 1.5 Pro', creator: 'Google DeepMind', downloads: '3.2M', popularity: '89.1%', growth: '+15%', logoColor: 'bg-blue-600' },
   { rank: 4, name: 'Qwen3-72B', creator: 'Alibaba', downloads: '2.1M', popularity: '81.2%', growth: '+32%', logoColor: 'bg-indigo-500' },
-  { rank: 5, name: 'DeepSeek-V3', creator: 'DeepSeek AI', downloads: '1.8M', popularity: '92.0%', growth: '+45%', logoColor: 'bg-sky-600' }
+  { rank: 5, name: 'DeepSeek-V3', creator: 'DeepSeek AI', downloads: '1.8M', popularity: '92.0%', growth: '+45%', logoColor: 'bg-sky-600' },
+  { rank: 6, name: 'Llama 3.1 405B', creator: 'Meta AI', downloads: '1.9M', popularity: '94.5%', growth: '+20%', logoColor: 'bg-sky-500' }
 ];
 
 export const latestActivityFeed: ActivityFeedItem[] = [

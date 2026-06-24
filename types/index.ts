@@ -17,6 +17,7 @@ export interface Paper {
   impact?: string;
   velocity?: string;
   thumbnailBg?: string;
+  upvotes?: number;
 }
 
 export interface Model {

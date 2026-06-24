@@ -1,15 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FFF9F5;
+  --background: #FFFFFF;
   --foreground: #111827;
   
-  --primary: #FF6B35;
-  --primary-hover: #E0531F;
-  --secondary: #FF8A5B;
-  --accent: #FFD8C9;
+  --bg-sub: #FAFAFA;
+  --bg-alt: #F8F8F8;
+  
+  --primary: #FF4D3A;
+  --primary-hover: #E03B2A;
+  --secondary: #FF6B57;
+  
+  --accent: #FFF0ED;
+  --active: #FFF4F2;
   --card: #FFFFFF;
-  --border-warm: #F3E5DC;
+  --border-warm: #EFEFEF;
+  --footer: #0F172A;
   
   --text-primary: #111827;
   --text-secondary: #6B7280;
@@ -19,15 +25,25 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   
+  --color-bg-sub: var(--bg-sub);
+  --color-bg-alt: var(--bg-alt);
+  
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
+  --color-active: var(--active);
   --color-card: var(--card);
   --color-border-warm: var(--border-warm);
+  --color-footer: var(--footer);
   
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
+  
+  --font-sans: var(--font-inter), sans-serif;
+  --font-display: var(--font-plus-jakarta), sans-serif;
+  
+  --shadow-premium: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 body {
@@ -37,19 +53,17 @@ body {
   min-height: 100vh;
 }
 
-/* Glassmorphism custom classes */
+/* Glassmorphism custom classes - adjusted to minimal clean style */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #FFFFFF;
   border: 1px solid var(--border-warm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .glass-panel-heavy {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #FFFFFF;
   border: 1px solid var(--border-warm);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
 }
 
 /* Custom scrollbars */

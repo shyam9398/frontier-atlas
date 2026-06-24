@@ -6,11 +6,15 @@ import { Search } from 'lucide-react';
 interface SearchBarProps {
   placeholder?: string;
   variant?: 'navbar' | 'hero';
+  value?: string;
+  onChange?: (val: string) => void;
 }
 
 export default function SearchBar({ 
   placeholder = "Search papers, authors, models, datasets, benchmarks...", 
-  variant = 'navbar' 
+  variant = 'navbar',
+  value = '',
+  onChange
 }: SearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -36,6 +40,8 @@ export default function SearchBar({
         ref={inputRef}
         type="text"
         placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         className={`w-full pl-11 pr-16 rounded-xl border border-border-warm bg-card text-text-primary text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm hover:border-border-warm/80 ${
           isHero ? 'py-3.5 text-base shadow-md' : 'py-2'
         }`}
