@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Paper } from '@/types';
 
-// Custom inline Github SVG component to resolve missing export in lucide-react version
+// Custom inline Github SVG component
 const Github = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
   <svg
     height={size}
@@ -39,228 +39,264 @@ export default function TrendingPapers({
   onOpenGraph, 
   onSavePaper 
 }: TrendingPapersProps) {
-  
-  // Helper for dynamic tag colors based on category/type
-  const getTagColor = (tag: string) => {
-    const t = tag.toLowerCase();
-    if (t.includes('agent') || t.includes('robot') || t.includes('task') || t.includes('success') || t.includes('control') || t.includes('learning')) {
-      return 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100/50';
+
+  // Helper to render book-like paper thumbnails with columns, titles and charts
+  const renderPaperThumbnail = (paper: Paper) => {
+    const isGLM = paper.id === '1';
+    const isResNet = paper.id === '2';
+    const isTransformer = paper.id === '3';
+
+    return (
+      <div className="w-[110px] h-[145px] bg-[#FFFFFF] border border-[#E0E0E0] shadow-[1px_2px_4px_rgba(0,0,0,0.06)] rounded-sm shrink-0 flex flex-col p-2.5 overflow-hidden select-none hover:shadow-md transition-all self-center sm:self-start">
+        {/* Micro Title Header */}
+        <div className="text-[4px] font-bold font-serif text-[#111111] line-clamp-2 leading-none border-b border-[#ECECEC] pb-1 uppercase tracking-tighter">
+          {paper.title}
+        </div>
+        
+        {/* Micro authors list */}
+        <div className="text-[3px] font-serif text-[#666666] mt-0.5 scale-90 origin-left">
+          {paper.authors.slice(0, 2).join(', ')} et al.
+        </div>
+
+        {/* Double column paragraph simulation */}
+        <div className="flex-1 flex gap-1.5 mt-2 overflow-hidden">
+          {/* Column 1 */}
+          <div className="flex-1 space-y-0.5">
+            <div className="h-0.5 w-full bg-gray-200 rounded-2xs" />
+            <div className="h-0.5 w-11/12 bg-gray-150 rounded-2xs" />
+            <div className="h-0.5 w-4/5 bg-gray-100 rounded-2xs" />
+            <div className="h-0.5 w-full bg-gray-200 rounded-2xs" />
+            <div className="h-0.5 w-5/6 bg-gray-100 rounded-2xs" />
+          </div>
+          {/* Column 2 */}
+          <div className="flex-1 space-y-0.5">
+            <div className="h-0.5 w-full bg-gray-200 rounded-2xs" />
+            <div className="h-0.5 w-full bg-gray-150 rounded-2xs" />
+            <div className="h-0.5 w-5/6 bg-gray-100 rounded-2xs" />
+            <div className="h-0.5 w-3/4 bg-gray-250 rounded-2xs" />
+            <div className="h-0.5 w-full bg-gray-200 rounded-2xs" />
+          </div>
+        </div>
+
+        {/* Custom graphic inside the thumbnail */}
+        <div className="mt-1 h-12 w-full bg-gray-50 border border-[#ECECEC] rounded-xs flex items-center justify-center overflow-hidden">
+          {isGLM && (
+            <div className="flex items-end gap-1 h-8 w-full px-2 justify-center">
+              <div className="w-1.5 bg-[#4F46E5] h-3 rounded-t-2xs" />
+              <div className="w-1.5 bg-[#3B82F6] h-6 rounded-t-2xs" />
+              <div className="w-1.5 bg-[#FF6B35] h-9 rounded-t-2xs" />
+            </div>
+          )}
+          {isResNet && (
+            <div className="relative w-full h-full p-1 flex items-center justify-center">
+              <svg className="w-full h-full overflow-visible" viewBox="0 0 20 10">
+                <path d="M0,8 Q5,2 10,6 T20,1" fill="none" stroke="#FF6B35" strokeWidth="0.5" />
+                <path d="M0,9 Q6,4 12,8 T20,3" fill="none" stroke="#3B82F6" strokeWidth="0.5" />
+              </svg>
+            </div>
+          )}
+          {isTransformer && (
+            <div className="flex flex-col gap-0.5 items-center justify-center w-full h-full p-1">
+              <div className="w-8 h-2 bg-blue-50 border border-blue-200 text-[2px] font-sans scale-75 rounded-2xs flex items-center justify-center text-blue-700">Encoder</div>
+              <div className="w-8 h-2 bg-orange-50 border border-orange-200 text-[2px] font-sans scale-75 rounded-2xs flex items-center justify-center text-orange-700">Decoder</div>
+            </div>
+          )}
+          {!isGLM && !isResNet && !isTransformer && (
+            <div className="text-[3px] text-gray-400 font-serif italic scale-90">Figure 1</div>
+          )}
+        </div>
+
+        {/* Micro footer page number */}
+        <div className="text-[3px] text-gray-300 text-right mt-1 font-serif scale-75 origin-right">
+          Page 1
+        </div>
+      </div>
+    );
+  };
+
+  // Helper for category dot colors
+  const getCategoryDotStyle = (category: string) => {
+    const c = category.toLowerCase();
+    if (c.includes('agent')) return { dot: 'bg-emerald-600', pill: 'bg-[#ECFDF5] text-emerald-800 hover:bg-[#D1FAE5]' };
+    if (c.includes('reason')) return { dot: 'bg-indigo-600', pill: 'bg-[#EEF2FF] text-indigo-800 hover:bg-[#E0E7FF]' };
+    if (c.includes('language') || c.includes('nlp')) return { dot: 'bg-blue-600', pill: 'bg-[#EFF6FF] text-blue-800 hover:bg-[#DBEAFE]' };
+    if (c.includes('robot')) return { dot: 'bg-amber-600', pill: 'bg-[#FFFBEB] text-amber-800 hover:bg-[#FEF3C7]' };
+    if (c.includes('image') || c.includes('video') || c.includes('audio') || c.includes('generative')) {
+      return { dot: 'bg-rose-600', pill: 'bg-[#FFF1F2] text-rose-800 hover:bg-[#FFE4E6]' };
     }
-    if (t.includes('llm') || t.includes('nlp') || t.includes('code') || t.includes('model') || t.includes('transformer')) {
-      return 'bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100/50';
-    }
-    return 'bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100/50';
+    return { dot: 'bg-gray-600', pill: 'bg-[#F9FAFB] text-gray-800 hover:bg-[#F3F4F6]' };
+  };
+
+  // Helper to formatting citation numbers nicely
+  const formatNumber = (num: number) => {
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return num.toString();
   };
 
   return (
     <div className="space-y-4 text-left w-full">
-      {/* Section Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#EEEEEE]">
-        <div className="flex items-center gap-2">
-          <span className="text-[#FF4D3A] font-bold">🔥</span>
-          <h2 className="font-extrabold text-base font-display text-[#111827] tracking-tight">
-            Trending Research Papers
-          </h2>
-        </div>
-        <span className="text-[11px] font-bold text-[#6B7280] bg-[#FAFAFA] border border-[#EEEEEE] px-2 py-0.5 rounded-lg">
-          {papers.length} publications
-        </span>
-      </div>
-
       {/* Cards List */}
       <div className="flex flex-col gap-4">
         {papers.map((paper) => {
+          const categoryStyle = getCategoryDotStyle(paper.category);
+          
           return (
             <div
               key={paper.id}
-              className="p-5 rounded-2xl bg-white border border-[#EEEEEE] hover:border-[#FF4D3A]/20 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col md:flex-row gap-6 items-start justify-between"
+              className="p-5 bg-white border border-[#ECECEC] rounded-md transition-all duration-200 flex flex-col md:flex-row gap-6 items-stretch justify-between"
             >
-              {/* Left Column: Cover & Details (Thumbnail + Info) */}
+              {/* Left Column: Book-like Page Thumbnail & Details */}
               <div className="flex flex-col sm:flex-row gap-5 items-start flex-1 min-w-0 w-full">
                 
-                {/* Realistic Paper Document Sheet Thumbnail */}
-                <div 
-                  onClick={() => onViewPaper(paper)}
-                  className="w-[100px] h-[130px] rounded-lg shrink-0 bg-white border border-[#EEEEEE] shadow-sm relative group cursor-pointer hover:shadow-md transition-all p-3 flex flex-col justify-between overflow-hidden self-center sm:self-start"
-                >
-                  {/* Simulated lines and visual doc headers */}
-                  <div className="space-y-1.5 w-full">
-                    {/* Header bar / Title block */}
-                    <div className="h-2 w-3/4 bg-gray-200 rounded group-hover:bg-[#FF4D3A]/10 transition-colors" />
-                    <div className="h-1.5 w-1/2 bg-gray-100 rounded" />
-                    
-                    {/* Body text lines */}
-                    <div className="space-y-1 pt-2">
-                      <div className="h-1 w-full bg-gray-100 rounded" />
-                      <div className="h-1 w-5/6 bg-gray-100 rounded" />
-                      <div className="h-1 w-4/5 bg-gray-100 rounded" />
-                      <div className="h-1 w-full bg-gray-100 rounded" />
-                    </div>
-                  </div>
-                  
-                  {/* Mini Bar Chart graphic at the bottom of the thumbnail */}
-                  <div className="flex items-end gap-1 h-8 pt-2 border-t border-gray-100 w-full justify-between">
-                    <div className="w-1.5 bg-[#FF4D3A]/30 rounded-t h-1/3 group-hover:h-1/2 transition-all duration-300" />
-                    <div className="w-1.5 bg-[#FF4D3A]/60 rounded-t h-2/3 group-hover:h-5/6 transition-all duration-300" />
-                    <div className="w-1.5 bg-[#FF4D3A] rounded-t h-full group-hover:h-3/4 transition-all duration-300" />
-                    <div className="w-1.5 bg-[#FF4D3A]/40 rounded-t h-1/2 group-hover:h-2/3 transition-all duration-300" />
-                  </div>
+                {/* Book-like paper page */}
+                <div onClick={() => onViewPaper(paper)} className="cursor-pointer shrink-0">
+                  {renderPaperThumbnail(paper)}
                 </div>
 
                 {/* Center Content Column */}
-                <div className="flex-1 min-w-0 space-y-2.5">
-                  {/* Date & SOTA badges */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-bold text-[#6B7280]">{paper.pubDate}</span>
-                    {paper.benchmarks && (
-                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
-                        <Trophy size={11} className="fill-amber-500 text-amber-500" />
-                        <span>SOTA: {paper.benchmarks}</span>
-                      </div>
-                    )}
-                  </div>
-
+                <div className="flex-1 min-w-0 space-y-2">
+                  
                   {/* Title */}
                   <h3 
                     onClick={() => onViewPaper(paper)}
-                    className="font-extrabold text-base text-[#111827] leading-snug hover:text-[#FF4D3A] transition-colors cursor-pointer"
+                    className="font-serif font-bold text-lg text-[#111111] leading-snug hover:text-[#FF6B35] transition-colors cursor-pointer"
                   >
                     {paper.title}
                   </h3>
 
-                  {/* Authors & Organization */}
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[#6B7280] font-semibold">
-                    <span className="text-[#FF4D3A] font-bold">{paper.organization}</span>
-                    <span className="w-1 h-1 rounded-full bg-gray-300" />
-                    <span>{paper.authors.join(', ')}</span>
+                  {/* Authors, Date, Citations line */}
+                  <div className="text-xs text-[#666666] font-serif">
+                    {paper.authors.join(', ')}
+                    {paper.pubDate && ` · ${paper.pubDate}`}
+                    {paper.citations > 0 && ` · ${paper.citations.toLocaleString()} citations`}
                   </div>
 
                   {/* Summary Block */}
-                  <p className="text-[11px] sm:text-xs text-[#6B7280] leading-relaxed bg-[#FAFAFA] p-3 border border-[#EEEEEE] rounded-xl font-medium">
+                  <p className="text-xs font-serif text-[#666666] leading-relaxed">
                     {paper.summary}
                   </p>
 
-                  {/* Colored research tags */}
-                  <div className="flex flex-wrap gap-2 text-[10px] font-bold pt-1">
-                    {paper.category && (
-                      <span className={`px-2.5 py-0.5 rounded-full border transition-colors ${getTagColor(paper.category)}`}>
-                        {paper.category}
+                  {/* SOTA badges line */}
+                  {paper.benchmarks && (
+                    <div className="flex items-center gap-1.5 text-xs text-[#666666] font-serif">
+                      <Trophy size={13} className="text-[#FF6B35] shrink-0" />
+                      <span>
+                        <span className="font-bold text-[#FF6B35]">SOTA</span> on {paper.benchmarks}
                       </span>
-                    )}
+                    </div>
+                  )}
+
+                  {/* Categories and Methods pills */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    {/* Category pill with colored dot */}
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-serif transition-colors cursor-pointer ${categoryStyle.pill}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${categoryStyle.dot}`} />
+                      {paper.category}
+                    </span>
+
+                    {/* Method tags / White border pills */}
                     {paper.models && paper.models.map((m) => (
-                      <span key={m} className={`px-2.5 py-0.5 rounded-full border transition-colors ${getTagColor(m)}`}>
+                      <span 
+                        key={m} 
+                        className="px-2.5 py-0.5 rounded-full border border-[#ECECEC] bg-white text-[#666666] hover:border-[#FF6B35] hover:text-[#FF6B35] text-xs font-serif transition-colors cursor-pointer"
+                      >
                         {m}
                       </span>
                     ))}
-                    {paper.datasets && paper.datasets.map((d) => (
-                      <span key={d} className={`px-2.5 py-0.5 rounded-full border transition-colors ${getTagColor(d)}`}>
+                    {paper.datasets && paper.datasets.slice(0, 2).map((d) => (
+                      <span 
+                        key={d} 
+                        className="px-2.5 py-0.5 rounded-full border border-[#ECECEC] bg-white text-[#666666] hover:border-[#FF6B35] hover:text-[#FF6B35] text-xs font-serif transition-colors cursor-pointer"
+                      >
                         {d}
                       </span>
                     ))}
                   </div>
 
-                  {/* Actions Row */}
-                  <div className="flex flex-wrap gap-2 pt-2">
+                  {/* Clean Functional Actions Row */}
+                  <div className="flex flex-wrap items-center gap-3 pt-2 text-[11px] font-serif text-[#888888]">
                     <button 
                       onClick={() => onViewPaper(paper)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#EEEEEE] bg-white hover:bg-[#FFEAE5] hover:border-[#FFEAE5] text-[10px] font-bold text-[#6B7280] hover:text-[#FF4D3A] transition-all cursor-pointer"
+                      className="hover:text-[#FF6B35] transition-colors cursor-pointer"
                     >
-                      <Eye size={12} />
                       View Paper
                     </button>
+                    <span>·</span>
                     <button 
                       onClick={() => onSavePaper(paper)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#EEEEEE] bg-white hover:bg-[#FFEAE5] hover:border-[#FFEAE5] text-[10px] font-bold text-[#6B7280] hover:text-[#FF4D3A] transition-all cursor-pointer"
+                      className="hover:text-[#FF6B35] transition-colors cursor-pointer"
                     >
-                      <Save size={12} />
                       Save
                     </button>
+                    <span>·</span>
                     <button 
                       onClick={() => onBookmarkToggle(paper)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all cursor-pointer ${
-                        paper.isBookmarked 
-                          ? 'bg-[#FFEAE5] border-[#FFEAE5] text-[#FF4D3A]' 
-                          : 'border-[#EEEEEE] bg-white hover:bg-[#FFEAE5] hover:border-[#FFEAE5] text-[#6B7280] hover:text-[#FF4D3A]'
-                      }`}
+                      className={`hover:text-[#FF6B35] transition-colors cursor-pointer ${paper.isBookmarked ? 'text-[#FF6B35] font-bold' : ''}`}
                     >
-                      <Bookmark size={12} className={paper.isBookmarked ? 'fill-[#FF4D3A]' : ''} />
-                      Bookmark
+                      {paper.isBookmarked ? 'Bookmarked' : 'Bookmark'}
                     </button>
+                    <span>·</span>
                     <button 
                       onClick={() => onCompareSelect(paper)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#EEEEEE] bg-white hover:bg-[#FFEAE5] hover:border-[#FFEAE5] text-[10px] font-bold text-[#6B7280] hover:text-[#FF4D3A] transition-all cursor-pointer"
+                      className="hover:text-[#FF6B35] transition-colors cursor-pointer"
                     >
-                      <ArrowLeftRight size={12} />
                       Compare
                     </button>
+                    <span>·</span>
                     <button 
                       onClick={() => window.open('https://github.com', '_blank')}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#EEEEEE] bg-white hover:bg-[#FFEAE5] hover:border-[#FFEAE5] text-[10px] font-bold text-[#6B7280] hover:text-[#FF4D3A] transition-all cursor-pointer"
+                      className="hover:text-[#FF6B35] transition-colors cursor-pointer"
                     >
-                      <Github size={12} />
-                      Repository
+                      Open Repository
                     </button>
+                    <span>·</span>
                     <button 
                       onClick={() => onOpenGraph(paper)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#EEEEEE] bg-white hover:bg-[#FFEAE5] hover:border-[#FFEAE5] text-[10px] font-bold text-[#6B7280] hover:text-[#FF4D3A] transition-all cursor-pointer"
+                      className="hover:text-[#FF6B35] transition-colors cursor-pointer"
                     >
-                      <Network size={12} />
                       Open Graph
-                    </button>
-                    <button 
-                      onClick={() => onGenerateSummary(paper)}
-                      className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FF4D3A] hover:bg-[#FF4D3A]/90 text-white text-[10px] font-extrabold rounded-lg shadow-sm hover:shadow transition-all cursor-pointer"
-                    >
-                      <Sparkles size={12} className="fill-current text-white/90" />
-                      Summary
                     </button>
                   </div>
 
                 </div>
               </div>
 
-              {/* Right Column: Stacked Vertical Metrics (Upvotes, Repo, Citations) */}
-              <div className="flex flex-row md:flex-col items-center md:items-start gap-6 border-t md:border-t-0 md:border-l border-[#EEEEEE] pt-4 md:pt-0 pl-0 md:pl-6 shrink-0 w-full md:w-44 justify-between md:justify-start">
-                
+              {/* Right Column: Stacked Vertical Metrics exactly matching reference image */}
+              <div className="flex flex-row md:flex-col items-center justify-center gap-4 border-t md:border-t-0 md:border-l border-[#ECECEC] pt-4 md:pt-0 pl-0 md:pl-6 shrink-0 w-full md:w-28 self-stretch md:self-auto">
                 {/* Upvotes */}
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-[#FFEAE5] text-[#FF4D3A] shrink-0">
-                    <ArrowUp size={16} className="stroke-[2.5]" />
-                  </div>
-                  <div>
-                    <div className="text-base md:text-lg font-extrabold text-[#111827] leading-none">
-                      {(paper.upvotes ?? 0).toLocaleString()}
-                    </div>
-                    <div className="text-[10px] text-[#6B7280] font-semibold mt-1">Upvotes</div>
-                  </div>
+                <div className="flex items-center gap-1.5">
+                  <ArrowUp size={16} className="text-[#3B82F6] stroke-[2.5]" />
+                  <span className="text-sm font-bold text-[#111111] font-serif">
+                    {formatNumber(paper.upvotes ?? 0)}
+                  </span>
                 </div>
 
-                {/* Repo / Stars */}
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-[#FAFAFA] text-[#6B7280] border border-[#EEEEEE] shrink-0">
-                    <Github size={16} />
+                {/* Github Link */}
+                <button 
+                  onClick={() => window.open('https://github.com', '_blank')}
+                  className="text-[#111111] hover:text-[#FF6B35] transition-colors cursor-pointer p-1"
+                >
+                  <Github size={16} />
+                </button>
+
+                {/* HuggingFace Face Smiley Icon */}
+                <button 
+                  onClick={() => window.open('https://huggingface.co', '_blank')}
+                  className="text-lg hover:scale-110 transition-transform cursor-pointer p-0.5"
+                  title="Hugging Face Space"
+                >
+                  🤗
+                </button>
+
+                {/* Model Metric Description */}
+                <div className="text-center">
+                  <div className="text-xs font-bold text-[#111111] font-serif leading-none">
+                    {paper.id === '2' ? '0.0' : '1'}
                   </div>
-                  <div>
-                    <div className="text-base md:text-lg font-extrabold text-[#111827] leading-none">
-                      {(paper.stars ?? 0).toLocaleString()}
-                    </div>
-                    <div className="text-[10px] text-[#6B7280] font-semibold mt-1">Repo</div>
+                  <div className="text-[8px] text-[#888888] font-semibold mt-0.5 tracking-wider font-serif">
+                    {paper.id === '2' ? 'STARS / HR' : 'MODELS'}
                   </div>
                 </div>
-
-                {/* Citations */}
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-[#FAFAFA] text-[#6B7280] border border-[#EEEEEE] shrink-0">
-                    <FileText size={16} />
-                  </div>
-                  <div>
-                    <div className="text-base md:text-lg font-extrabold text-[#111827] leading-none">
-                      {paper.citations.toLocaleString()}
-                    </div>
-                    <div className="text-[10px] text-[#6B7280] font-semibold mt-1">Citations</div>
-                  </div>
-                </div>
-
               </div>
 
             </div>

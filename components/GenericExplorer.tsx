@@ -116,37 +116,37 @@ export default function GenericExplorer({ viewId }: GenericExplorerProps) {
   });
 
   return (
-    <div className="glass-panel rounded-3xl p-6 shadow-sm border border-border-warm bg-card w-full text-left">
+    <div className="bg-white border border-[#ECECEC] rounded-md p-6 w-full text-left font-serif">
       {/* Title block */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-border-warm gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#ECECEC] gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-primary/5 text-primary border border-primary/10">
-            <ViewIcon size={24} />
+          <div className="p-3 bg-gray-50 text-[#FF6B35] border border-[#ECECEC] rounded">
+            <ViewIcon size={20} />
           </div>
           <div>
-            <h2 className="font-extrabold text-lg text-text-primary tracking-tight">{viewData.title}</h2>
-            <p className="text-xs text-text-secondary leading-snug">{viewData.desc}</p>
+            <h2 className="font-bold text-lg text-[#111111]">{viewData.title}</h2>
+            <p className="text-xs text-[#666666] leading-snug">{viewData.desc}</p>
           </div>
         </div>
 
         {/* Sort Controls */}
         <div className="flex items-center gap-2.5 self-start sm:self-center">
-          <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider flex items-center gap-1">
+          <span className="text-[10px] font-bold text-[#888888] uppercase tracking-wider flex items-center gap-1">
             <ArrowUpDown size={10} />
             Sort By
           </span>
           <button
             onClick={() => setSortBy('name')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
-              sortBy === 'name' ? 'bg-primary text-white border-primary shadow-sm shadow-primary/20' : 'bg-card text-text-secondary border-border-warm hover:border-primary/30'
+            className={`px-3 py-1.5 rounded text-xs font-semibold border transition-all cursor-pointer ${
+              sortBy === 'name' ? 'bg-[#FF6B35] text-white border-[#FF6B35]' : 'bg-white text-[#666666] border-[#ECECEC] hover:border-[#FF6B35]/50'
             }`}
           >
             Name
           </button>
           <button
             onClick={() => setSortBy('value')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
-              sortBy === 'value' ? 'bg-primary text-white border-primary shadow-sm shadow-primary/20' : 'bg-card text-text-secondary border-border-warm hover:border-primary/30'
+            className={`px-3 py-1.5 rounded text-xs font-semibold border transition-all cursor-pointer ${
+              sortBy === 'value' ? 'bg-[#FF6B35] text-white border-[#FF6B35]' : 'bg-white text-[#666666] border-[#ECECEC] hover:border-[#FF6B35]/50'
             }`}
           >
             Metric Value
@@ -156,7 +156,7 @@ export default function GenericExplorer({ viewId }: GenericExplorerProps) {
 
       {/* Explorer Search inside pane */}
       <div className="relative flex items-center w-full max-w-md my-5 group">
-        <div className="absolute left-3.5 text-text-secondary/70 group-focus-within:text-primary transition-colors">
+        <div className="absolute left-3.5 text-[#666666]/70 group-focus-within:text-[#FF6B35] transition-colors">
           <Search size={16} />
         </div>
         <input
@@ -164,45 +164,45 @@ export default function GenericExplorer({ viewId }: GenericExplorerProps) {
           placeholder={`Filter ${viewData.title.toLowerCase()}...`}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full py-2.5 pl-10 pr-4 rounded-xl border border-border-warm bg-card text-text-primary text-xs shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-border-warm/80"
+          className="w-full py-2.5 pl-10 pr-4 rounded border border-[#ECECEC] bg-white text-[#111111] text-xs transition-all focus:outline-none focus:ring-1 focus:ring-[#FF6B35] focus:border-[#FF6B35]"
         />
       </div>
 
       {/* Database Grid */}
       {sortedItems.length === 0 ? (
-        <div className="p-8 text-center border border-dashed border-border-warm rounded-2xl">
-          <p className="text-xs text-text-secondary font-semibold">No results match your search query</p>
+        <div className="p-8 text-center border border-dashed border-[#ECECEC] rounded">
+          <p className="text-xs text-[#666666] font-semibold">No results match your search query</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedItems.map((item) => (
             <div
               key={item.id}
-              className="p-5 rounded-2xl border border-border-warm bg-accent/5 hover:bg-accent/10 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
+              className="p-5 rounded border border-[#ECECEC] bg-gray-50/50 hover:bg-gray-50 hover:border-[#FF6B35]/30 transition-all duration-200 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-[#FF6B35] bg-[#FFF2EB] px-2 py-0.5 rounded border border-[#FF6B35]/15">
                     {item.tag}
                   </span>
-                  <span className="text-[10px] text-text-secondary font-bold">{item.dateOrSpec}</span>
+                  <span className="text-[10px] text-[#666666]">{item.dateOrSpec}</span>
                 </div>
                 
-                <h4 className="font-extrabold text-sm text-text-primary leading-snug truncate">
+                <h4 className="font-bold text-sm text-[#111111] leading-snug truncate">
                   {item.name}
                 </h4>
                 
-                <p className="text-[10px] font-semibold text-text-secondary mt-1">
-                  Origin: <span className="text-text-primary/80">{item.creatorOrOrg}</span>
+                <p className="text-[10px] text-[#666666] mt-1 font-serif">
+                  Origin: <span className="text-[#111111]/80">{item.creatorOrOrg}</span>
                 </p>
               </div>
 
               {/* Metric spec */}
-              <div className="mt-4 pt-4 border-t border-border-warm/50 flex flex-col">
-                <span className="text-[8px] font-bold text-text-secondary uppercase tracking-wider leading-none">
+              <div className="mt-4 pt-4 border-t border-[#ECECEC]/70 flex flex-col">
+                <span className="text-[8px] font-bold text-[#888888] uppercase tracking-wider leading-none">
                   {item.metricLabel}
                 </span>
-                <span className="text-xs font-extrabold text-text-primary mt-1 block leading-none">
+                <span className="text-xs font-bold text-[#111111] mt-1 block leading-none">
                   {item.metricValue}
                 </span>
               </div>

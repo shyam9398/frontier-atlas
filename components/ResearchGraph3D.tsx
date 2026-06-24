@@ -55,10 +55,10 @@ function OrbitingNode({ name, radius, speed, yOffset, phase }: OrbitingNodeProps
       {/* Thin connection wire from Center Node to Orbiting Node */}
       <lineSegments ref={lineRef} geometry={lineGeometry}>
         <lineBasicMaterial 
-          color={hovered ? '#FF4D3A' : '#6B7280'} 
+          color={hovered ? '#FF6B35' : '#888888'} 
           linewidth={1} 
           transparent 
-          opacity={hovered ? 0.8 : 0.25} 
+          opacity={hovered ? 0.7 : 0.2} 
         />
       </lineSegments>
 
@@ -67,27 +67,27 @@ function OrbitingNode({ name, radius, speed, yOffset, phase }: OrbitingNodeProps
         ref={meshRef}
         onPointerOver={(e) => { e.stopPropagation(); setHovered(true); }}
         onPointerOut={() => setHovered(false)}
-        scale={hovered ? 1.3 : 1.0}
+        scale={hovered ? 1.25 : 1.0}
       >
-        <sphereGeometry args={[0.045, 32, 32]} />
+        <sphereGeometry args={[0.045, 16, 16]} />
         <meshPhysicalMaterial
-          color={hovered ? '#FFFFFF' : '#FF6B57'}
+          color={hovered ? '#FFFFFF' : '#FF6B35'}
           roughness={0.1}
           metalness={0.2}
           clearcoat={1.0}
-          emissive={hovered ? '#FF4D3A' : '#FF6B57'}
-          emissiveIntensity={hovered ? 2.5 : 0.6}
+          emissive={hovered ? '#FF6B35' : '#FF6B35'}
+          emissiveIntensity={hovered ? 2.0 : 0.5}
         />
         
         {/* HTML Hover Label */}
         <Html
-          position={[0, 0.1, 0]}
+          position={[0, 0.12, 0]}
           center
           distanceFactor={3}
           className="pointer-events-none select-none"
         >
-          <div className={`px-2 py-0.5 rounded-full border text-[8px] font-extrabold tracking-wider bg-white select-none whitespace-nowrap transition-all duration-200 shadow-sm ${
-            hovered ? 'text-[#FF4D3A] border-[#FF4D3A]/40 scale-105 font-black' : 'text-[#6B7280] border-[#EEEEEE]'
+          <div className={`px-1.5 py-0.5 rounded text-[7px] font-serif tracking-wider bg-white select-none whitespace-nowrap transition-all duration-200 border ${
+            hovered ? 'text-[#FF6B35] border-[#FF6B35]/40 scale-105 font-bold' : 'text-[#666666] border-[#ECECEC]'
           }`}>
             {name}
           </div>
@@ -105,7 +105,7 @@ function CenterNode() {
     if (!meshRef.current) return;
     const t = state.clock.getElapsedTime();
     // Breathe animation
-    const scale = (hovered ? 1.25 : 1.0) + Math.sin(t * 1.5) * 0.05;
+    const scale = (hovered ? 1.2 : 1.0) + Math.sin(t * 1.5) * 0.04;
     meshRef.current.scale.set(scale, scale, scale);
   });
 
@@ -116,22 +116,22 @@ function CenterNode() {
       onPointerOver={(e) => { e.stopPropagation(); setHovered(true); }}
       onPointerOut={() => setHovered(false)}
     >
-      <sphereGeometry args={[0.11, 32, 32]} />
+      <sphereGeometry args={[0.1, 24, 24]} />
       <meshPhysicalMaterial
-        color={hovered ? '#FFFFFF' : '#FF4D3A'}
+        color={hovered ? '#FFFFFF' : '#FF6B35'}
         roughness={0.05}
         metalness={0.3}
         clearcoat={1.0}
-        emissive="#FF4D3A"
-        emissiveIntensity={hovered ? 3.5 : 2.0}
+        emissive="#FF6B35"
+        emissiveIntensity={hovered ? 2.5 : 1.5}
       />
       <Html
-        position={[0, 0.22, 0]}
+        position={[0, 0.2, 0]}
         center
         distanceFactor={3}
         className="pointer-events-none select-none"
       >
-        <div className="px-3 py-1 rounded-full border border-[#FF4D3A]/20 text-[9px] font-extrabold tracking-widest bg-white text-[#FF4D3A] select-none whitespace-nowrap shadow-sm uppercase">
+        <div className="px-2 py-0.5 rounded border border-[#FF6B35]/25 text-[8px] font-bold font-serif tracking-wider bg-white text-[#FF6B35] select-none whitespace-nowrap shadow-sm uppercase">
           AI Research
         </div>
       </Html>
@@ -145,19 +145,17 @@ function GraphScene() {
   // Slow rotational drift of the entire scene coordinate space
   useFrame((state) => {
     if (!sceneGroupRef.current) return;
-    sceneGroupRef.current.rotation.y = state.clock.getElapsedTime() * 0.035;
+    sceneGroupRef.current.rotation.y = state.clock.getElapsedTime() * 0.02;
   });
 
-  // Define 8 orbiting nodes symmetrically distributed in phases
+  // Define exactly 6 orbiting nodes symmetrically distributed in phases
   const orbitingNodes = [
-    { name: 'Papers', radius: 0.9, speed: 0.22, yOffset: -0.15, phase: 0 },
-    { name: 'Models', radius: 1.1, speed: 0.18, yOffset: 0.25, phase: Math.PI / 4 },
-    { name: 'Datasets', radius: 1.0, speed: 0.25, yOffset: -0.25, phase: Math.PI / 2 },
-    { name: 'Benchmarks', radius: 1.15, speed: 0.15, yOffset: 0.1, phase: 3 * Math.PI / 4 },
-    { name: 'Authors', radius: 0.85, speed: 0.28, yOffset: -0.05, phase: Math.PI },
-    { name: 'Organizations', radius: 1.05, speed: 0.2, yOffset: 0.35, phase: 5 * Math.PI / 4 },
-    { name: 'Repositories', radius: 1.12, speed: 0.17, yOffset: -0.2, phase: 3 * Math.PI / 2 },
-    { name: 'Tasks', radius: 0.95, speed: 0.24, yOffset: 0.15, phase: 7 * Math.PI / 4 }
+    { name: 'Papers', radius: 0.85, speed: 0.2, yOffset: -0.1, phase: 0 },
+    { name: 'Models', radius: 1.05, speed: 0.16, yOffset: 0.2, phase: Math.PI / 3 },
+    { name: 'Datasets', radius: 0.95, speed: 0.22, yOffset: -0.2, phase: 2 * Math.PI / 3 },
+    { name: 'Benchmarks', radius: 1.1, speed: 0.14, yOffset: 0.05, phase: Math.PI },
+    { name: 'Authors', radius: 0.8, speed: 0.25, yOffset: -0.05, phase: 4 * Math.PI / 3 },
+    { name: 'Organizations', radius: 1.0, speed: 0.18, yOffset: 0.25, phase: 5 * Math.PI / 3 }
   ];
 
   return (
@@ -182,13 +180,13 @@ function GraphScene() {
 
 export default function ResearchGraph3D() {
   return (
-    <div className="w-full h-full min-h-[140px] max-h-[180px] aspect-square relative flex items-center justify-center cursor-grab active:cursor-grabbing">
+    <div className="w-full h-full min-h-[90px] max-h-[120px] aspect-square relative flex items-center justify-center cursor-grab active:cursor-grabbing bg-transparent">
       <Canvas
-        camera={{ position: [0, 0.4, 2.5], fov: 45 }}
+        camera={{ position: [0, 0.3, 2.2], fov: 40 }}
         gl={{ antialias: true, alpha: true }}
       >
         <ambientLight intensity={1.5} />
-        <pointLight position={[5, 5, 5]} intensity={1.2} color="#FF6B57" />
+        <pointLight position={[5, 5, 5]} intensity={1.2} color="#FF6B35" />
         <directionalLight position={[0, 4, 1]} intensity={0.8} />
 
         <GraphScene />

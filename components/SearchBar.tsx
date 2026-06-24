@@ -11,7 +11,7 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ 
-  placeholder = "Search papers, authors, models, datasets, benchmarks...", 
+  placeholder = "Search papers, methods, tasks, organizations...", 
   variant = 'navbar',
   value = '',
   onChange
@@ -29,12 +29,11 @@ export default function SearchBar({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const isHero = variant === 'hero';
 
   return (
-    <div className={`relative flex items-center w-full transition-all duration-200 ${isHero ? 'max-w-xl mx-auto' : 'max-w-md'}`}>
+    <div className={`relative flex items-center w-full transition-all duration-200`}>
       <div className="absolute left-3.5 text-text-secondary">
-        <Search size={18} className="text-text-secondary/70 group-focus-within:text-primary transition-colors" />
+        <Search size={16} className="text-text-secondary/70 group-focus-within:text-primary transition-colors" />
       </div>
       <input
         ref={inputRef}
@@ -42,12 +41,10 @@ export default function SearchBar({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
-        className={`w-full pl-11 pr-16 rounded-xl border border-border-warm bg-card text-text-primary text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm hover:border-border-warm/80 ${
-          isHero ? 'py-3.5 text-base shadow-md' : 'py-2'
-        }`}
+        className="w-full pl-11 pr-16 rounded-md border border-[#ECECEC] bg-white text-[#111111] text-xs transition-all focus:outline-none focus:ring-1 focus:ring-[#FF6B35] focus:border-[#FF6B35] py-2.5"
       />
-      <div className={`absolute right-3 flex items-center gap-1.5 px-1.5 py-0.5 rounded border border-border-warm bg-accent/20 text-[10px] font-semibold text-text-secondary pointer-events-none select-none ${isHero ? 'py-1 px-2' : ''}`}>
-        <span>Ctrl</span>
+      <div className="absolute right-3 flex items-center gap-1 px-1.5 py-0.5 rounded border border-[#ECECEC] bg-gray-50 text-[9px] font-semibold text-[#888888] pointer-events-none select-none">
+        <span>⌘</span>
         <span>K</span>
       </div>
     </div>

@@ -2,23 +2,25 @@
 
 :root {
   --background: #FFFFFF;
-  --foreground: #111827;
+  --foreground: #111111;
   
-  --bg-sub: #FAFAFA;
-  --bg-alt: #F8F8F8;
+  --bg-sub: #FCFCFC;
+  --bg-alt: #FAFAFA;
   
-  --primary: #FF4D3A;
-  --primary-hover: #E03B2A;
-  --secondary: #FF6B57;
+  --primary: #FF6B35;
+  --primary-hover: #FF7F50;
+  --secondary: #FF6B35;
   
-  --accent: #FFF0ED;
-  --active: #FFF4F2;
+  --accent: #FFF2EB;
+  --active: #FFF2EB;
   --card: #FFFFFF;
-  --border-warm: #EFEFEF;
-  --footer: #0F172A;
+  --border-warm: #ECECEC;
+  --footer: #111111;
   
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
+  --text-primary: #111111;
+  --text-secondary: #666666;
+  --text-muted: #888888;
+  --success: #16A34A;
 }
 
 @theme {
@@ -39,11 +41,13 @@
   
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-success: var(--success);
   
-  --font-sans: var(--font-inter), sans-serif;
-  --font-display: var(--font-plus-jakarta), sans-serif;
+  --font-sans: "Times New Roman", Times, Georgia, serif;
+  --font-display: "Times New Roman", Times, Georgia, serif;
   
-  --shadow-premium: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --shadow-premium: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 body {
