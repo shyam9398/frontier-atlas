@@ -59,7 +59,7 @@ export default function CompareModal({ papers, onClose }: CompareModalProps) {
                   <h4 className="font-serif font-bold text-sm text-[#111111] mb-2 line-clamp-2 leading-snug">
                     {paper.title}
                   </h4>
-                  <p className="text-[11px] font-semibold text-[#FF6B35] mb-1">{paper.organization || 'Independent Research'}</p>
+                  <p className="text-[11px] font-semibold text-[#FF6B35] mb-1">{(paper.organization && typeof paper.organization === 'object') ? (paper.organization as { name?: string }).name : (paper.organization || 'Independent Research')}</p>
                   <p className="text-[10px] text-[#666666] mb-4 truncate font-serif">{paper.authors.join(', ')}</p>
                   <p className="text-xs text-[#444444] font-serif leading-relaxed italic bg-white p-3.5 rounded border border-[#ECECEC] line-clamp-4">
                     &ldquo;{paper.summary}&rdquo;

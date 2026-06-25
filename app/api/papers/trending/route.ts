@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const cachePath = path.join(process.cwd(), 'data', 'papers_cache.json');

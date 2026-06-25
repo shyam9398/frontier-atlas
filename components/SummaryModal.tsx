@@ -90,7 +90,7 @@ export default function SummaryModal({ paper, onClose }: SummaryModalProps) {
             // Typed Results
             <div className="space-y-4 text-left">
               <h4 className="font-extrabold text-sm text-text-primary line-clamp-1">{paper.title}</h4>
-              <p className="text-[10px] font-semibold text-primary">{paper.organization} • {paper.pubDate}</p>
+              <p className="text-[10px] font-semibold text-primary">{(paper.organization && typeof paper.organization === 'object') ? (paper.organization as { name?: string }).name : (paper.organization || 'Independent Research')} • {paper.pubDate}</p>
               
               <div className="mt-4 p-4 rounded-2xl bg-accent/5 border border-border-warm/65 text-xs text-text-primary leading-relaxed whitespace-pre-line font-medium font-sans">
                 {typedText}

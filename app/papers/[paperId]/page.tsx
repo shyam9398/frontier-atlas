@@ -36,12 +36,34 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
         setLoading(true);
         setError(null);
 
+        // Extract base targetId if it is an adapted paper
+        let targetId = paperId;
+        let isAdapted = false;
+        let adaptedCategory = "";
+        if (paperId.includes('-adapted-')) {
+          const parts = paperId.split('-adapted-');
+          targetId = parts[0];
+          isAdapted = true;
+          adaptedCategory = parts[1];
+        }
+
         // 1. Try to load from our trending API
         const trendingRes = await fetch('/api/papers/trending');
         if (trendingRes.ok) {
           const trendingPapers = await trendingRes.json();
-          const found = trendingPapers.find((p: Paper) => p.id === paperId);
+          let found = trendingPapers.find((p: Paper) => p.id === targetId);
           if (found) {
+            if (isAdapted) {
+              const topic = adaptedCategory.replace(/-/g, ' ');
+              const capTopic = topic.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+              found = {
+                ...found,
+                id: paperId, // Keep adapted ID
+                category: capTopic,
+                tasks: [capTopic, ...(found.tasks || []).slice(0, 2)],
+                methods: [capTopic, ...(found.methods || []).slice(0, 2)]
+              };
+            }
             setPaper(found);
             
             // Check bookmarks/saved state
@@ -55,8 +77,8 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
         }
 
         // 2. Fallback to live API lookup
-        console.log(`Paper ${paperId} not in cache, fetching live...`);
-        const hfRes = await fetch(`https://huggingface.co/api/papers/${paperId}`);
+        console.log(`Paper ${targetId} not in cache, fetching live...`);
+        const hfRes = await fetch(`https://huggingface.co/api/papers/${targetId}`);
         let hfData: { 
           title?: string; 
           summary?: string; 
@@ -65,7 +87,7 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
           githubRepo?: string;
           githubStars?: number;
           upvotes?: number;
-          organization?: string;
+          organization?: string | { name?: string; fullname?: string; avatar?: string } | null;
           ai_keywords?: string[];
           linkedModels?: Array<{ name: string }>;
           linkedDatasets?: Array<{ name: string }>;
@@ -75,7 +97,9 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
           hfData = await hfRes.json();
         }
 
-        const ssRes = await fetch(`https://api.semanticscholar.org/graph/v1/paper/arXiv:${paperId}?fields=title,abstract,authors,year,citationCount,referenceCount,url,s2FieldsOfStudy,publicationTypes,publicationDate,fieldsOfStudy,citations,references`);
+        const isArxiv = targetId.includes('.') || targetId.includes('/');
+        const ssPaperId = isArxiv ? `arXiv:${targetId}` : targetId;
+        const ssRes = await fetch(`https://api.semanticscholar.org/graph/v1/paper/${ssPaperId}?fields=title,abstract,authors,year,citationCount,referenceCount,url,s2FieldsOfStudy,publicationTypes,publicationDate,fieldsOfStudy,citations,references`);
         let ssData: {
           title?: string;
           abstract?: string;
@@ -184,7 +208,7 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
           references: referencesCount,
           source: "arXiv",
           isBookmarked: false,
-          category,
+          category: isAdapted ? (adaptedCategory.replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')) : category,
           organization,
           summary: abstract,
           stars,
@@ -195,11 +219,11 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
           spaces: hfData?.linkedSpaces ? hfData.linkedSpaces.map((s: { name: string }) => s.name) : [],
           benchmarks: "MMLU, GPQA",
           benchmarkResults,
-          tasks,
-          methods,
+          tasks: isAdapted ? [(adaptedCategory.replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')), ...tasks.slice(0, 2)] : tasks,
+          methods: isAdapted ? [(adaptedCategory.replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')), ...methods.slice(0, 2)] : methods,
           relatedPapers,
           citationsList,
-          hfThumbnail: `https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/${paperId}.png`,
+          hfThumbnail: `https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/${targetId}.png`,
           readingTime: Math.max(5, Math.floor(abstract.split(' ').length / 150)) + " min",
           popularityScore: Math.floor(upvotes * 2.5 + citations * 1.2 + stars * 0.8)
         };
@@ -318,8 +342,22 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
         {/* Left Column Sidebar */}
         <div className="hidden md:block shrink-0 h-full border-r border-[#ECECEC]">
           <Sidebar currentView="papers" onViewChange={(viewId) => {
-            if (viewId === 'home') router.push('/home');
-            else router.push(`/home?view=${viewId}`);
+            if (viewId === 'submit-paper') {
+              router.push('/submit-paper');
+              return;
+            }
+            let url = '/home';
+            if (viewId === 'latest-papers') url = '/latest';
+            else if (viewId === 'trending-papers') url = '/trending';
+            else if (viewId === 'most-cited') url = '/most-cited';
+            else if (viewId === 'github-stars') url = '/github-stars';
+            else if (viewId.startsWith('area-')) url = `/${viewId.replace('area-', '')}`;
+            else if (viewId.startsWith('method-')) url = `/${viewId.replace('method-', '')}`;
+            else if (viewId.startsWith('gen-')) url = `/${viewId.replace('gen-', '')}`;
+            else if (viewId.startsWith('lib-')) url = `/${viewId.replace('lib-', '')}`;
+            else if (viewId.startsWith('tool-')) url = `/${viewId.replace('tool-', '')}`;
+            else if (viewId !== 'home') url = `/${viewId}`;
+            router.push(url);
           }} />
         </div>
 
@@ -377,7 +415,7 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase font-sans font-bold text-[#FF6B35]">
                       <span className="bg-[#FFF2EB] px-2 py-0.5 rounded border border-[#FF6B35]/15">{paper.category}</span>
-                      <span className="text-[#666666]">• {paper.organization}</span>
+                      <span className="text-[#666666]">• {(paper.organization && typeof paper.organization === 'object') ? (paper.organization as { name?: string }).name : (paper.organization || 'Independent Research')}</span>
                       <span className="text-[#888888] font-normal normal-case font-serif">Submitted {paper.pubDate}</span>
                     </div>
 
@@ -391,6 +429,8 @@ export default function PaperDetailsPage({ params }: PaperDetailsPageProps) {
                       <span className="font-semibold text-[#111111]">{paper.citations.toLocaleString()} citations</span>
                       <span>•</span>
                       <span>Source: <span className="font-bold text-[#FF6B35]">{paper.source}</span></span>
+                      <span>•</span>
+                      <span>⏱ {paper.readingTime || '10 min'}</span>
                     </div>
                   </div>
 

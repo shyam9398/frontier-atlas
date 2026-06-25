@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { 
-  Trophy, FileText, ExternalLink, Clock, ThumbsUp
+  Trophy, ExternalLink, ThumbsUp
 } from 'lucide-react';
 import { Paper } from '@/types';
 import PaperThumbnail from './PaperThumbnail';
@@ -84,7 +84,7 @@ export default function PaperCard({
               {paper.category}
             </span>
             <span className="text-[#666666]">
-              • {paper.organization || 'Independent Research'}
+              • {(paper.organization && typeof paper.organization === 'object') ? (paper.organization as { name?: string }).name : (paper.organization || 'Independent Research')}
             </span>
             <span className="text-[#888888] normal-case font-normal font-serif">
               ({paper.pubDate})
@@ -200,49 +200,60 @@ export default function PaperCard({
       {/* Right Column: Metrics Panel */}
       <div className="flex flex-row md:flex-col items-center justify-around md:justify-start gap-4 border-t md:border-t-0 md:border-l border-[#ECECEC] pt-4 md:pt-2 pl-0 md:pl-6 shrink-0 w-full md:w-36 self-stretch">
         
-        {/* Popularity Badge */}
+        {/* Upvotes Badge */}
         <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">Popularity</span>
-          <div className="flex items-center gap-1 mt-1 text-[#FF6B35] bg-[#FFF2EB] border border-[#FF6B35]/20 px-2 py-1 rounded">
-            <ThumbsUp size={13} className="fill-[#FF6B35]/10" />
-            <span className="text-sm font-bold font-serif leading-none">
-              {paper.popularityScore || Math.floor((paper.upvotes || 0) * 1.5 + (paper.citations || 0) * 0.8)}
+          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">upvote</span>
+          <div className="flex items-center gap-1 mt-1 text-[#FF6B35] bg-[#FFF2EB] border border-[#FF6B35]/20 px-2.5 py-1 rounded">
+            <ThumbsUp size={12} className="fill-[#FF6B35]/10 text-[#FF6B35]" />
+            <span className="text-xs font-bold font-serif leading-none">
+              {paper.upvotes || 0}
             </span>
           </div>
         </div>
 
         {/* GitHub Stars Badge */}
         <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">Stars</span>
+          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">⭐ GitHub Stars</span>
           <button 
             onClick={handleOpenRepo}
             className="flex items-center gap-1.5 mt-1 hover:text-[#FF6B35] transition-colors bg-gray-50 border border-gray-200 px-2.5 py-1 rounded cursor-pointer"
           >
             <GithubIcon size={12} className="text-[#111111]" />
             <span className="text-xs font-bold font-serif leading-none">
-              ⭐ {formatNumber(paper.stars || 0)}
+              {formatNumber(paper.stars || 0)}
             </span>
           </button>
         </div>
 
         {/* Citations Badge */}
         <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">Citations</span>
+          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">📖 Citations</span>
           <div className="flex items-center gap-1 mt-1 text-[#111111] bg-gray-50 border border-gray-200 px-2.5 py-1 rounded">
-            <FileText size={12} className="text-[#666666]" />
             <span className="text-xs font-bold font-serif leading-none">
-              📖 {formatNumber(paper.citations || 0)}
+              {formatNumber(paper.citations || 0)}
             </span>
           </div>
         </div>
 
+        {/* Repository Badge */}
+        <div className="flex flex-col items-center text-center">
+          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">🔗 Repository</span>
+          <button 
+            onClick={handleOpenRepo}
+            className="flex items-center gap-1.5 mt-1 hover:text-[#FF6B35] transition-colors bg-gray-50 border border-gray-200 px-2.5 py-1 rounded cursor-pointer"
+          >
+            <span className="text-xs font-bold font-serif leading-none">
+              {paper.githubRepo ? 'Official' : 'Search'}
+            </span>
+          </button>
+        </div>
+
         {/* Reading Time */}
         <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">Read Time</span>
+          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">⏱ Reading Time</span>
           <div className="flex items-center gap-1 mt-1 text-[#555555] bg-gray-50 border border-gray-200 px-2.5 py-1 rounded">
-            <Clock size={12} className="text-[#888888]" />
             <span className="text-xs font-bold font-serif leading-none">
-              ⏱ {paper.readingTime || '10 min'}
+              {paper.readingTime || '10 min'}
             </span>
           </div>
         </div>

@@ -23,8 +23,9 @@ export default function PaperThumbnail({ title, authors, hfThumbnail, className 
           src={hfThumbnail}
           alt={`Thumbnail of ${title}`}
           fill
+          unoptimized={true}
           sizes="(max-width: 768px) 120px, 150px"
-          className="object-cover transition-opacity duration-300"
+          className="object-contain transition-opacity duration-300"
           onError={() => setImgError(true)}
           priority={false}
         />

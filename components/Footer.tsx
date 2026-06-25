@@ -22,8 +22,8 @@ export default function Footer() {
     {
       title: 'Explore',
       links: [
-        { name: 'Latest Papers', href: '/papers/latest' },
-        { name: 'Trending Papers', href: '/papers/trending' },
+        { name: 'Latest Papers', href: '/latest' },
+        { name: 'Trending Papers', href: '/trending' },
         { name: 'Benchmarks Leaderboard', href: '/benchmarks' },
         { name: 'Datasets Registry', href: '/datasets' },
       ],
