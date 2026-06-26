@@ -40,7 +40,7 @@ export default function SearchBar({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
-        className="w-full pl-11 pr-16 rounded-md border border-[#ECECEC] bg-white text-[#111111] text-xs transition-all focus:outline-none focus:ring-1 focus:ring-[#FF6B35] focus:border-[#FF6B35] py-2.5"
+        className="w-full pl-11 pr-16 rounded-md border border-[#ECECEC] bg-white text-[#111111] text-xs transition-all focus:outline-none focus:ring-1 focus:ring-[#FF3B6B] focus:border-[#FF3B6B] py-2.5"
       />
       <div className="absolute right-3 flex items-center gap-1 px-1.5 py-0.5 rounded border border-[#ECECEC] bg-gray-50 text-[9px] font-semibold text-[#888888] pointer-events-none select-none">
         <span>⌘</span>

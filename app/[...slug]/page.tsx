@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
 import TrendingPapers from '@/components/TrendingPapers';
 import CompareModal from '@/components/CompareModal';
 import SummaryModal from '@/components/SummaryModal';
@@ -48,6 +47,7 @@ export default function CatchAllPage({ params }: PageProps) {
   const [compareList, setCompareList] = useState<Paper[]>([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showToast, setShowToast] = useState<string | null>(null);
+  const [activeTimeframe, setActiveTimeframe] = useState('Today');
   
   // Layout triggers
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -649,169 +649,312 @@ export default function CatchAllPage({ params }: PageProps) {
             {currentView === 'home' && (
               <div className="flex flex-col">
                 
-                {/* Hero Section */}
-                <Hero 
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                />
-                
-                {/* Paper stream filter bar exactly matching reference layout */}
-                <div className="flex justify-between items-center w-full mt-2 text-left">
-                  <div className="flex gap-2">
-                    <button className="bg-[#FF6B35] text-white px-4 py-1.5 text-xs font-serif font-semibold rounded cursor-pointer border-0">
-                      Trending
-                    </button>
-                    <button className="bg-white border border-[#ECECEC] text-[#666666] hover:text-[#FF6B35] px-4 py-1.5 text-xs font-serif rounded cursor-pointer">
-                      Newest
-                    </button>
-                    <button className="bg-white border border-[#ECECEC] text-[#666666] hover:text-[#FF6B35] px-4 py-1.5 text-xs font-serif rounded cursor-pointer">
-                      Most Cited
-                    </button>
-                  </div>
-                  <span className="text-xs text-[#888888] font-serif">
-                    20 papers
-                  </span>
-                </div>
-
-                <div className="border-b border-[#ECECEC] my-4" />
-
-                {/* Trending papers feed */}
-                <TrendingPapers
-                  papers={getFilteredPapers(papers)}
-                  isLoading={loading}
-                  error={error}
-                  onRetry={fetchTrendingPapers}
-                  onBookmarkToggle={handleBookmarkToggle}
-                  onCompareSelect={handleCompareSelect}
-                  onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
-                  onSavePaper={handleSavePaper}
-                  compareList={compareList}
-                />
-
-                {/* Discovery sections stacked below papers */}
-                <div className="flex flex-col gap-10 mt-12 w-full text-left">
+                {/* Grid of 4 Dashboard Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 text-left">
                   
-                  {/* TOP MODELS SECTION */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-[#ECECEC]">
-                      <h3 className="font-serif font-bold text-lg text-[#111111] tracking-wide">Top Models</h3>
-                      <button onClick={() => handleViewChange('models')} className="text-xs font-serif text-[#FF6B35] hover:underline bg-transparent border-0 cursor-pointer font-semibold">
-                        View All Models
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-xs font-serif">
-                      {[
-                        { name: 'GPT-5', org: 'OpenAI', dls: '5.2M', growth: '+18%', logo: 'GP', color: 'bg-orange-50 text-orange-600 border-orange-100' },
-                        { name: 'Claude', org: 'Anthropic', dls: '4.8M', growth: '+24%', logo: 'CL', color: 'bg-amber-50 text-amber-700 border-amber-100' },
-                        { name: 'Gemini', org: 'Google DeepMind', dls: '3.2M', growth: '+15%', logo: 'GE', color: 'bg-blue-50 text-blue-600 border-blue-100' },
-                        { name: 'Qwen', org: 'Alibaba Cloud', dls: '2.1M', growth: '+32%', logo: 'QW', color: 'bg-purple-50 text-purple-600 border-purple-100' },
-                        { name: 'DeepSeek', org: 'DeepSeek AI', dls: '1.8M', growth: '+45%', logo: 'DS', color: 'bg-emerald-50 text-emerald-600 border-emerald-100' }
-                      ].map((model) => (
-                        <div key={model.name} className="p-4 border border-[#ECECEC] rounded bg-white hover:border-[#FF6B35]/20 hover:shadow-xs transition-all flex flex-col justify-between space-y-3 min-h-[130px]">
-                          <div className="flex items-start justify-between">
-                            <span className={`w-8 h-8 rounded border flex items-center justify-center font-bold font-sans text-xs ${model.color}`}>
-                              {model.logo}
-                            </span>
-                            <span className="font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] tracking-tight">{model.growth}</span>
-                          </div>
-                          <div className="space-y-1">
-                            <h4 className="font-serif font-bold text-xs text-[#111111] line-clamp-1">{model.name}</h4>
-                            <p className="text-[10px] text-[#666666] line-clamp-1">{model.org}</p>
-                          </div>
-                          <div className="border-t border-[#ECECEC]/60 pt-2 flex justify-between items-center text-[10px] text-[#888888] font-sans">
-                            <span>Downloads</span>
-                            <span className="font-bold text-[#111111]">{model.dls}</span>
-                          </div>
+                  {/* Card 1: Breakthrough Today */}
+                  <div className="bg-white border border-[#ECECEC] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex flex-col justify-between min-h-[220px]">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-1.5 text-[11px] font-sans font-bold text-[#FF3B6B]">
+                          <span className="w-2 h-2 rounded-full bg-[#FF3B6B]" />
+                          BREAKTHROUGH TODAY
                         </div>
-                      ))}
+                        <span className="bg-[#FFF0F3] text-[#FF3B6B] text-[9px] font-bold px-2 py-0.5 rounded border border-[#FF3B6B]/15">
+                          Official Release
+                        </span>
+                      </div>
+                      <h3 className="font-serif font-bold text-lg text-[#111111] leading-tight mb-2 hover:text-[#FF3B6B] transition-colors cursor-pointer">
+                        OpenAI releases GPT-4.5 Turbo
+                      </h3>
+                      <p className="text-xs font-serif text-[#666666] leading-relaxed mb-3">
+                        First-party model in the GPT-4.5 series, now available in OpenAI Studio.
+                      </p>
+                      <ul className="text-[11px] font-serif text-[#444444] space-y-1">
+                        <li className="flex items-center gap-1.5">
+                          <span className="text-[#FF3B6B]">★</span> Beats Gemini 1.5 Pro on 7 benchmarks
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                          <span className="text-[#FF3B6B]">★</span> 256K context length
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                          <span className="text-[#FF3B6B]">★</span> Lower latency, higher accuracy
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mt-4 pt-3 border-t border-[#ECECEC]/60">
+                      <button 
+                        onClick={() => {
+                          const gptPaper = papers.find(p => p.title.toLowerCase().includes('gpt') || p.title.toLowerCase().includes('openai')) || papers[0];
+                          if (gptPaper) router.push(`/papers/${gptPaper.id}`);
+                        }} 
+                        className="text-xs font-serif font-bold text-[#FF3B6B] hover:text-[#FF4F7B] flex items-center gap-1 transition-colors bg-transparent border-0 cursor-pointer"
+                      >
+                        View paper →
+                      </button>
+                      <div className="w-10 h-10 rounded-full bg-[#FCFCFC] border border-[#ECECEC] flex items-center justify-center shrink-0">
+                        <svg className="w-5 h-5 text-[#111111]" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
 
-                  {/* TOP DATASETS SECTION */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-[#ECECEC]">
-                      <h3 className="font-serif font-bold text-lg text-[#111111] tracking-wide">Top Datasets</h3>
-                      <button onClick={() => handleViewChange('datasets')} className="text-xs font-serif text-[#FF6B35] hover:underline bg-transparent border-0 cursor-pointer font-semibold">
-                        View All Datasets
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-xs font-serif">
-                      {[
-                        { name: 'ImageNet', dls: '85K', tasks: ['Classification', 'CV'], initials: 'IN', color: 'from-orange-400 to-red-500' },
-                        { name: 'Common Crawl', dls: '120K', tasks: ['Pretraining', 'Web'], initials: 'CC', color: 'from-blue-400 to-indigo-500' },
-                        { name: 'The Pile', dls: '45K', tasks: ['Language Modeling'], initials: 'TP', color: 'from-purple-400 to-pink-500' },
-                        { name: 'MMLU', dls: '95K', tasks: ['Evaluation', 'QA'], initials: 'MM', color: 'from-emerald-400 to-teal-500' },
-                        { name: 'HumanEval', dls: '38K', tasks: ['Coding Agents'], initials: 'HE', color: 'from-cyan-400 to-blue-500' },
-                        { name: 'GPQA', dls: '54K', tasks: ['Reasoning'], initials: 'GP', color: 'from-yellow-400 to-orange-500' }
-                      ].map((dataset) => (
-                        <div key={dataset.name} className="p-4 border border-[#ECECEC] rounded bg-white hover:border-[#FF6B35]/20 hover:shadow-xs transition-all flex flex-col justify-between space-y-3 min-h-[220px]">
-                          {/* Dataset Thumbnail: Premium Data Visualization Grid */}
-                          <div className="w-full h-24 rounded bg-gradient-to-br from-gray-50 to-gray-100 border border-[#ECECEC] flex items-center justify-center overflow-hidden relative shadow-inner shrink-0">
-                            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#111_1px,transparent_1px)] [background-size:8px_8px]" />
-                            <span className={`text-[10px] font-sans font-bold px-2 py-1 rounded bg-gradient-to-br ${dataset.color} text-white shadow-sm`}>
-                              {dataset.initials}
+                  {/* Card 2: Rising Fast */}
+                  <div className="bg-white border border-[#ECECEC] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex flex-col justify-between min-h-[220px]">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-[11px] font-sans font-bold text-[#FF3B6B] mb-3">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                        </svg>
+                        RISING FAST
+                      </div>
+                      <div className="flex items-baseline gap-1.5 mb-1">
+                        <span className="text-3xl font-serif font-bold text-[#111111]">+540</span>
+                        <span className="text-xs font-serif font-semibold text-[#FF3B6B]">stars today</span>
+                      </div>
+                      <p className="text-[11px] font-serif text-[#888888] mb-4">
+                        GitHub stars in the last 8 hours
+                      </p>
+                      <div className="space-y-2.5">
+                        {[
+                          { rank: 1, name: 'VoxCPM-1.5', stars: '+540' },
+                          { rank: 2, name: 'DeepSeek-R1.1', stars: '+412' },
+                          { rank: 3, name: 'LongRPE 2.0', stars: '+398' }
+                        ].map(item => (
+                          <div key={item.name} className="flex justify-between items-center text-xs font-serif">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold text-[#888888] bg-gray-50 border border-gray-100 w-4 h-4 rounded-full flex items-center justify-center">
+                                {item.rank}
+                              </span>
+                              <span className="font-semibold text-gray-700 hover:text-[#FF3B6B] cursor-pointer transition-colors">{item.name}</span>
+                            </div>
+                            <span className="text-[10px] font-bold text-[#FF3B6B] flex items-center gap-0.5">
+                              {item.stars} ★
                             </span>
                           </div>
-                          
-                          <div className="space-y-1">
-                            <h4 className="font-serif font-bold text-xs text-[#111111] truncate">{dataset.name}</h4>
-                            <div className="flex flex-wrap gap-1">
-                              {dataset.tasks.map(task => (
-                                <span key={task} className="px-1.5 py-0.5 rounded text-[8px] bg-gray-50 border border-gray-200 text-[#555555] font-sans tracking-tight">
-                                  {task}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          <div className="border-t border-[#ECECEC]/60 pt-2 flex justify-between items-center text-[10px] text-[#888888] font-sans mt-auto">
-                            <span>Downloads</span>
-                            <span className="font-bold text-[#111111]">{dataset.dls}</span>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-[#ECECEC]/60">
+                      <button 
+                        onClick={() => handleViewChange('github-stars')}
+                        className="text-xs font-serif font-bold text-[#FF3B6B] hover:text-[#FF4F7B] flex items-center gap-1 transition-colors bg-transparent border-0 cursor-pointer"
+                      >
+                        View all rising →
+                      </button>
                     </div>
                   </div>
 
-                  {/* TOP ORGANIZATIONS SECTION */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-[#ECECEC]">
-                      <h3 className="font-serif font-bold text-lg text-[#111111] tracking-wide">Top Organizations</h3>
-                      <button onClick={() => handleViewChange('organizations')} className="text-xs font-serif text-[#FF6B35] hover:underline bg-transparent border-0 cursor-pointer font-semibold">
-                        View All Organizations
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-xs font-serif">
-                      {[
-                        { name: 'OpenAI', papers: '2,341', citations: '125K', logo: 'OA', color: 'bg-zinc-800 text-white' },
-                        { name: 'Anthropic', papers: '987', citations: '45K', logo: 'AN', color: 'bg-[#EED8C9] text-[#382E2B]' },
-                        { name: 'Google DeepMind', papers: '2,102', citations: '96K', logo: 'DM', color: 'bg-blue-600 text-white' },
-                        { name: 'Meta', papers: '1,876', citations: '87K', logo: 'ME', color: 'bg-blue-500 text-white' },
-                        { name: 'Microsoft Research', papers: '1,234', citations: '56K', logo: 'MS', color: 'bg-blue-800 text-white' }
-                      ].map((org) => (
-                        <div key={org.name} className="p-4 border border-[#ECECEC] rounded bg-white hover:border-[#FF6B35]/20 hover:shadow-xs transition-all flex flex-col justify-between space-y-3 min-h-[120px]">
-                          <div className="flex items-center gap-2.5">
-                            <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold font-sans text-xs ${org.color}`}>
-                              {org.logo}
-                            </span>
-                            <h4 className="font-serif font-bold text-xs text-[#111111] line-clamp-1 leading-snug">{org.name}</h4>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#ECECEC]/60 text-[10px] text-[#666666] font-sans">
-                            <div>
-                              <span className="block text-[#888888] text-[9px] uppercase">Publications</span>
-                              <span className="font-bold text-[#111111]">{org.papers}</span>
-                            </div>
-                            <div className="text-right">
-                              <span className="block text-[#888888] text-[9px] uppercase">Citations</span>
-                              <span className="font-bold text-[#111111]">{org.citations}</span>
-                            </div>
-                          </div>
+                  {/* Card 3: New SOTA Today */}
+                  <div className="bg-white border border-[#ECECEC] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex flex-col justify-between min-h-[220px]">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-1.5 text-[11px] font-sans font-bold text-emerald-600">
+                          <svg className="w-3.5 h-3.5 fill-emerald-600/10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <circle cx="12" cy="8" r="7" />
+                            <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" />
+                          </svg>
+                          NEW SOTA TODAY
                         </div>
-                      ))}
+                        <button 
+                          onClick={() => handleViewChange('trending-papers')}
+                          className="text-[10px] font-serif font-bold text-[#FF3B6B] hover:underline bg-transparent border-0 cursor-pointer"
+                        >
+                          View all →
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-3 mt-3">
+                        {[
+                          { name: 's1: Simple Test-Time Scaling', desc: '#1 on 8 benchmarks' },
+                          { name: 'LongRPE 2.0', desc: '#1 on 6 benchmarks' },
+                          { name: 'V-JEPA 2', desc: '#1 on 4 benchmarks' },
+                          { name: 'MuJoCo World Model Suite', desc: '#1 on 3 benchmarks' }
+                        ].map((item, idx) => (
+                          <div key={idx} className="flex gap-2 items-start text-xs font-serif">
+                            <span className="shrink-0 text-[8px] font-bold font-sans bg-emerald-50 text-emerald-600 border border-emerald-100 px-1 py-0.5 rounded">
+                              SOTA
+                            </span>
+                            <div className="space-y-0.5">
+                              <h4 className="font-semibold text-gray-700 hover:text-[#FF3B6B] cursor-pointer transition-colors leading-tight line-clamp-1">{item.name}</h4>
+                              <p className="text-[9px] text-[#888888] font-sans">{item.desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 4: Trending On GitHub */}
+                  <div className="bg-white border border-[#ECECEC] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex flex-col justify-between min-h-[220px]">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-[11px] font-sans font-bold text-[#111111] mb-3">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                        </svg>
+                        TRENDING ON GITHUB
+                      </div>
+                      
+                      <div className="space-y-3.5">
+                        {[
+                          { name: 'microsoft/BitNet', stars: '+2.1k' },
+                          { name: 'huggingface/transformers', stars: '+1.8k' },
+                          { name: 'databricks/dolly', stars: '+1.6k' },
+                          { name: 'vllm-project/vllm', stars: '+1.4k' },
+                          { name: 'unslothai/unsloth', stars: '+1.2k' }
+                        ].map(item => (
+                          <div key={item.name} className="flex justify-between items-center text-xs font-serif">
+                            <span className="font-semibold text-gray-700 hover:text-[#FF3B6B] cursor-pointer transition-colors truncate max-w-[150px]">{item.name}</span>
+                            <span className="text-[10px] font-bold text-[#888888] flex items-center gap-0.5">
+                              {item.stars} ★
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-[#ECECEC]/60">
+                      <button 
+                        onClick={() => handleViewChange('github-stars')}
+                        className="text-xs font-serif font-bold text-[#FF3B6B] hover:text-[#FF4F7B] flex items-center gap-1 transition-colors bg-transparent border-0 cursor-pointer"
+                      >
+                        View all trending repos →
+                      </button>
                     </div>
                   </div>
 
                 </div>
+
+                {/* Timeframe Filters Pill Row */}
+                <div className="flex gap-2 mb-6 border-b border-[#ECECEC] pb-3 text-left">
+                  {['Today', 'This Week', 'This Month', 'All time'].map((period) => {
+                    const isActive = activeTimeframe === period;
+                    return (
+                      <button
+                        key={period}
+                        onClick={() => setActiveTimeframe(period)}
+                        className={`px-4 py-1.5 text-xs font-serif font-semibold rounded-md border transition-all cursor-pointer ${
+                          isActive
+                            ? 'bg-[#FFF0F3] border-[#FF3B6B]/25 text-[#FF3B6B]'
+                            : 'bg-white border-[#ECECEC] text-[#666666] hover:bg-gray-50'
+                        }`}
+                      >
+                        {period}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* 2-Column Content Layout */}
+                <div className="flex flex-col lg:flex-row gap-8 items-start w-full">
+                  
+                  {/* Left Column: Trending Papers Feed */}
+                  <div className="flex-1 min-w-0 w-full">
+                    <TrendingPapers
+                      papers={getFilteredPapers(
+                        activeTimeframe === 'Today' ? papers.slice(0, 7) :
+                        activeTimeframe === 'This Week' ? papers.slice(0, 12) :
+                        activeTimeframe === 'This Month' ? papers.slice(0, 16) : papers
+                      )}
+                      isLoading={loading}
+                      error={error}
+                      onRetry={fetchTrendingPapers}
+                      onBookmarkToggle={handleBookmarkToggle}
+                      onCompareSelect={handleCompareSelect}
+                      onOpenGraph={(paper) => { triggerToast(`Opening relationship graph for "${paper.title}"`); handleViewChange('tool-graph'); }}
+                      onSavePaper={handleSavePaper}
+                      compareList={compareList}
+                    />
+                  </div>
+
+                  {/* Right Column: Social Sidebar widgets */}
+                  <div className="w-full lg:w-[320px] shrink-0 space-y-6">
+                    
+                    {/* Widget 1: Trending on X */}
+                    <div className="bg-white border border-[#ECECEC] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex flex-col justify-between min-h-[220px] text-left">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-[11px] font-sans font-bold text-[#111111] mb-3">
+                          {/* X Logo */}
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                          </svg>
+                          TRENDING ON X
+                        </div>
+                        
+                        <div className="space-y-3">
+                          {[
+                            { name: 'x.com/levelsio', stars: '+2.1k' },
+                            { name: 'x.com/EMostaque', stars: '+1.8k' },
+                            { name: 'x.com/ai_for_success', stars: '+1.6k' },
+                            { name: 'x.com/deedyedas', stars: '+1.4k' },
+                            { name: 'x.com/rowancheung', stars: '+1.2k' }
+                          ].map(item => (
+                            <div key={item.name} className="flex justify-between items-center text-xs font-serif">
+                              <span className="font-semibold text-gray-700 hover:text-[#FF3B6B] cursor-pointer transition-colors truncate max-w-[200px]">{item.name}</span>
+                              <span className="text-[10px] font-bold text-[#888888] flex items-center gap-0.5">
+                                {item.stars} ★
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-3 border-t border-[#ECECEC]/60">
+                        <button 
+                          onClick={() => triggerToast('Opening external X.com trending feed')}
+                          className="text-xs font-serif font-bold text-[#FF3B6B] hover:text-[#FF4F7B] flex items-center gap-1 transition-colors bg-transparent border-0 cursor-pointer"
+                        >
+                          View all trending posts →
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Widget 2: Trending on Reddit */}
+                    <div className="bg-white border border-[#ECECEC] rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-md transition-all flex flex-col justify-between min-h-[220px] text-left">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-[11px] font-sans font-bold text-[#FF5A00] mb-3">
+                          {/* Reddit Logo */}
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                            <g><circle fill="none" cx="10" cy="10" r="10"></circle><path d="M16.67,9.08a1.56,1.56,0,0,0-2.54-1.18,8.69,8.69,0,0,0-3.83-1.11l.78-2.48,2.15.5a1.07,1.07,0,1,0,1-.78,1.07,1.07,0,0,0-1,.76l-2.35-.55a.26.26,0,0,0-.31.18l-.86,2.73A8.86,8.86,0,0,0,5.83,7.9,1.56,1.56,0,0,0,3.33,9.08a1.53,1.53,0,0,0,.66,1.25,6.43,6.43,0,0,0,0,1.38,1.53,1.53,0,0,0-.66,1.25,1.56,1.56,0,0,0,2.54,1.18,8.69,8.69,0,0,0,3.83,1.11l-.78,2.48-2.15-.5a1.07,1.07,0,1,0-1,.78,1.07,1.07,0,0,0,1-.76l2.35.55a.26.26,0,0,0,.31-.18l.86-2.73a8.86,8.86,0,0,0,3.95-1.17,1.56,1.56,0,0,0,2.54-1.18,1.53,1.53,0,0,0-.66-1.25,6.43,6.43,0,0,0,0-1.38A1.53,1.53,0,0,0,16.67,9.08ZM6.88,11.25a.78.78,0,1,1,.78-.78A.78.78,0,0,1,6.88,11.25Zm5.68,2.12c-1,.65-2.86.65-3.86,0a.27.27,0,0,1,0-.37.25.25,0,0,1,.36,0c.79.52,2.35.52,3.13,0a.25.25,0,0,1,.36,0A.27.27,0,0,1,12.56,13.37Zm-.22-2.9a.78.78,0,1,1,.78-.78A.78.78,0,0,1,12.34,10.47Z"></path></g>
+                          </svg>
+                          TRENDING ON REDDIT
+                        </div>
+                        
+                        <div className="space-y-3">
+                          {[
+                            { name: 'r/MachineLearning', stars: '+2.1k' },
+                            { name: 'r/LocalLLaMA', stars: '+1.8k' },
+                            { name: 'r/ArtificialIntelligence', stars: '+1.6k' },
+                            { name: 'r/DeepLearning', stars: '+1.6k' },
+                            { name: 'r/LLMDevs', stars: '+1.4k' }
+                          ].map(item => (
+                            <div key={item.name} className="flex justify-between items-center text-xs font-serif">
+                              <span className="font-semibold text-gray-700 hover:text-[#FF3B6B] cursor-pointer transition-colors truncate max-w-[200px]">{item.name}</span>
+                              <span className="text-[10px] font-bold text-[#888888] flex items-center gap-0.5">
+                                {item.stars} ★
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-3 border-t border-[#ECECEC]/60">
+                        <button 
+                          onClick={() => triggerToast('Opening external Reddit trending feed')}
+                          className="text-xs font-serif font-bold text-[#FF3B6B] hover:text-[#FF4F7B] flex items-center gap-1 transition-colors bg-transparent border-0 cursor-pointer"
+                        >
+                          View all trending posts →
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
               </div>
             )}
 

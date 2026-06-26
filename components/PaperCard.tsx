@@ -2,24 +2,41 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { 
-  Trophy, ExternalLink, ThumbsUp
-} from 'lucide-react';
 import { Paper } from '@/types';
 import PaperThumbnail from './PaperThumbnail';
 
-// Custom inline Github SVG component
-const GithubIcon = ({ size = 14, className = "" }: { size?: number; className?: string }) => (
-  <svg
-    height={size}
-    width={size}
-    className={className}
-    viewBox="0 0 16 16"
-    fill="currentColor"
-  >
-    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-  </svg>
-);
+// Helper to format citation numbers nicely
+const formatNumber = (num: number) => {
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  return num.toString();
+};
+
+const getTagStyle = (tag: string) => {
+  const t = tag.toLowerCase();
+  if (t.includes('coding agent')) {
+    return 'bg-[#FAF0F5] border-[#F5D5E5] text-[#9D174D]';
+  }
+  if (t.includes('agent')) {
+    return 'bg-[#F0F2FF] border-[#E0E7FF] text-[#3730A3]';
+  }
+  if (t.includes('language') || t.includes('nlp')) {
+    return 'bg-[#ECFDF5] border-[#D1FAE5] text-[#065F46]';
+  }
+  if (t.includes('reasoning') || t.includes('math') || t.includes('logic')) {
+    return 'bg-[#FFFBEB] border-[#FEF3C7] text-[#92400E]';
+  }
+  if (t.includes('robot')) {
+    return 'bg-[#EFF6FF] border-[#DBEAFE] text-[#1E40AF]';
+  }
+  if (t.includes('world') || t.includes('predictive')) {
+    return 'bg-[#FDF2F8] border-[#FCE7F3] text-[#9D174D]';
+  }
+  if (t.includes('computer') || t.includes('gui')) {
+    return 'bg-[#F0FDFA] border-[#CCFBF1] text-[#0F766E]';
+  }
+  // Default benchmark or dataset tags
+  return 'bg-[#F9FAFB] border-[#F3F4F6] text-[#4B5563]';
+};
 
 interface PaperCardProps {
   paper: Paper;
@@ -43,12 +60,6 @@ export default function PaperCard({
   onOpenGraph
 }: PaperCardProps) {
 
-  // Helper to format citation numbers nicely
-  const formatNumber = (num: number) => {
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-    return num.toString();
-  };
-
   // Helper to resolve github repository URL or fallback to search query for title
   const handleOpenRepo = () => {
     if (paper.githubRepo && paper.githubRepo.trim() !== '') {
@@ -58,9 +69,22 @@ export default function PaperCard({
     }
   };
 
+  const getSotaLine = () => {
+    if (!paper.benchmarks) return null;
+    // Format benchmarks nicely to show SOTA ranking
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-[#FF3B6B] font-serif">
+        <span>🏆</span>
+        <span>
+          <span className="font-bold">SOTA</span> on <span className="font-semibold">{paper.benchmarks}</span> · #1 ranking today
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div 
-      className="p-6 bg-white border border-[#ECECEC] rounded-md transition-all duration-300 hover:shadow-md hover:border-[#FF6B35]/20 flex flex-col md:flex-row gap-6 items-stretch justify-between text-left min-h-[320px] md:min-h-[340px]"
+      className="p-6 bg-white border border-[#ECECEC] rounded-xl transition-all duration-300 hover:shadow-md hover:border-[#FF3B6B]/20 flex flex-col md:flex-row gap-6 items-stretch justify-between text-left min-h-[300px]"
       data-testid="paper-card"
     >
       {/* Left Column: Real Paper Thumbnail */}
@@ -78,118 +102,94 @@ export default function PaperCard({
       {/* Center Content Column */}
       <div className="flex-1 min-w-0 flex flex-col justify-between space-y-3">
         <div className="space-y-2">
-          {/* Organization & Category Tag */}
-          <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wider font-sans font-bold">
-            <span className="text-[#FF6B35] bg-[#FFF2EB] px-2 py-0.5 rounded border border-[#FF6B35]/15">
-              {paper.category}
-            </span>
-            <span className="text-[#666666]">
-              • {(paper.organization && typeof paper.organization === 'object') ? (paper.organization as { name?: string }).name : (paper.organization || 'Independent Research')}
-            </span>
-            <span className="text-[#888888] normal-case font-normal font-serif">
-              ({paper.pubDate})
-            </span>
-          </div>
+          {/* SOTA Line if available */}
+          {getSotaLine()}
 
           {/* Title - Times New Roman */}
-          <h2 className="font-serif font-bold text-[#111111] hover:text-[#FF6B35] transition-colors leading-snug break-words line-clamp-2 text-20px md:text-24px">
+          <h2 className="font-serif font-bold text-[#111111] hover:text-[#FF3B6B] transition-colors leading-snug break-words text-xl md:text-2xl">
             <Link href={`/papers/${paper.id}`}>
               {paper.title}
             </Link>
           </h2>
 
-          {/* Authors */}
-          <p className="text-xs font-serif text-[#666666] line-clamp-1">
-            <span className="font-semibold text-[#111111]">Authors:</span> {paper.authors.join(', ')}
+          {/* Authors & Organization */}
+          <p className="text-xs font-serif text-[#666666]">
+            <span className="font-semibold text-[#111111]">{paper.authors.join(', ')}</span> 
+            {paper.pubDate && ` · ${paper.pubDate}`}
           </p>
 
-          {/* Abstract / Description - #444444, line-height 1.7, 16px desktop */}
-          <p className="font-serif text-[#444444] text-[14px] md:text-[16px] leading-[1.7] line-clamp-4 max-w-none">
+          {/* Abstract / Description - #444444, Times New Roman, line-height 1.7 */}
+          <p className="font-serif text-[#444444] text-[14px] md:text-[15px] leading-[1.65] line-clamp-3 max-w-none">
             {paper.summary}
           </p>
-
-          {/* SOTA Benchmarks Line */}
-          {paper.benchmarks && (
-            <div className="flex items-center gap-1.5 text-xs text-[#666666] font-serif">
-              <Trophy size={13} className="text-[#FF6B35] shrink-0" />
-              <span>
-                <span className="font-bold text-[#FF6B35]">SOTA Leaderboard</span> on <span className="font-semibold text-[#111111]">{paper.benchmarks}</span>
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Tags Row: Tasks, Methods, Datasets */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex flex-wrap gap-1.5 items-center">
+            {/* Primary category pill */}
+            <span className="px-2 py-0.5 rounded text-[10px] font-sans font-bold uppercase tracking-wider bg-[#FFF0F3] border border-[#FF3B6B]/15 text-[#FF3B6B]">
+              {paper.category}
+            </span>
+
             {/* Tasks Tags */}
             {paper.tasks && paper.tasks.slice(0, 3).map(task => (
               <span 
                 key={task}
-                className="px-2 py-0.5 rounded text-[10px] bg-gray-50 border border-gray-200 text-[#444444] hover:bg-gray-100 hover:border-gray-300 font-sans tracking-tight transition-colors"
+                className={`px-2 py-0.5 rounded text-[10px] border font-sans tracking-tight transition-colors ${getTagStyle(task)}`}
               >
                 {task}
               </span>
             ))}
             
-            {/* Methods Tags */}
+            {/* Methods Tags (Secondary style: thin border) */}
             {paper.methods && paper.methods.slice(0, 3).map(method => (
               <span 
                 key={method}
-                className="px-2 py-0.5 rounded text-[10px] bg-gray-50 border border-gray-200 text-[#555555] hover:bg-gray-100 hover:border-gray-300 font-sans tracking-tight transition-colors"
+                className="px-2 py-0.5 rounded text-[10px] bg-[#FAFAFA] border border-[#ECECEC] text-[#555555] font-sans tracking-tight hover:bg-gray-50 transition-colors"
               >
                 {method}
               </span>
             ))}
-
-            {/* Datasets Tags */}
-            {paper.datasets && paper.datasets.slice(0, 2).map(dataset => (
-              <span 
-                key={dataset}
-                className="px-2 py-0.5 rounded text-[10px] bg-gray-50 border border-gray-200 text-[#666666] hover:bg-gray-100 hover:border-gray-300 font-sans tracking-tight transition-colors"
-              >
-                {dataset}
-              </span>
-            ))}
           </div>
 
-          {/* Action Row */}
-          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2 pt-2 text-[11px] font-serif text-[#888888] border-t border-[#ECECEC]">
-            <Link href={`/papers/${paper.id}`} className="hover:text-[#FF6B35] font-semibold transition-colors">
-              View Paper Details
+          {/* Action Row - Times New Roman fine links separated by dots */}
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 pt-2 text-[11px] font-serif text-[#666666] border-t border-[#ECECEC]">
+            <Link href={`/papers/${paper.id}`} className="hover:text-[#FF3B6B] font-bold transition-colors">
+              View Paper
             </Link>
-            <span>·</span>
+            <span className="text-[#ECECEC]">•</span>
             <button 
               onClick={handleOpenRepo}
-              className="hover:text-[#FF6B35] transition-colors cursor-pointer flex items-center gap-0.5"
+              className="hover:text-[#FF3B6B] transition-colors cursor-pointer flex items-center bg-transparent border-0 p-0 font-serif text-[11px] text-[#666666]"
             >
-              Repository <ExternalLink size={10} />
+              Repository
             </button>
-            <span>·</span>
+            <span className="text-[#ECECEC]">•</span>
             <button 
               onClick={onSaveToggle}
-              className={`hover:text-[#FF6B35] transition-colors cursor-pointer ${isSaved ? 'text-[#FF6B35] font-bold' : ''}`}
+              className={`hover:text-[#FF3B6B] transition-colors cursor-pointer bg-transparent border-0 p-0 font-serif text-[11px] ${isSaved ? 'text-[#FF3B6B] font-bold' : 'text-[#666666]'}`}
             >
-              {isSaved ? 'Saved to Library' : 'Save'}
+              {isSaved ? 'Saved' : 'Save'}
             </button>
-            <span>·</span>
+            <span className="text-[#ECECEC]">•</span>
             <button 
               onClick={onBookmarkToggle}
-              className={`hover:text-[#FF6B35] transition-colors cursor-pointer ${isBookmarked ? 'text-[#FF6B35] font-bold' : ''}`}
+              className={`hover:text-[#FF3B6B] transition-colors cursor-pointer bg-transparent border-0 p-0 font-serif text-[11px] ${isBookmarked ? 'text-[#FF3B6B] font-bold' : 'text-[#666666]'}`}
             >
               {isBookmarked ? 'Bookmarked' : 'Bookmark'}
             </button>
-            <span>·</span>
+            <span className="text-[#ECECEC]">•</span>
             <button 
               onClick={onCompareSelect}
-              className={`hover:text-[#FF6B35] transition-colors cursor-pointer ${isInCompareList ? 'text-[#FF6B35] font-bold' : ''}`}
+              className={`hover:text-[#FF3B6B] transition-colors cursor-pointer bg-transparent border-0 p-0 font-serif text-[11px] ${isInCompareList ? 'text-[#FF3B6B] font-bold' : 'text-[#666666]'}`}
             >
               {isInCompareList ? 'Remove Compare' : 'Compare'}
             </button>
-            <span>·</span>
+            <span className="text-[#ECECEC]">•</span>
             <button 
               onClick={onOpenGraph}
-              className="hover:text-[#FF6B35] transition-colors cursor-pointer"
+              className="hover:text-[#FF3B6B] transition-colors cursor-pointer bg-transparent border-0 p-0 font-serif text-[11px] text-[#666666]"
             >
               Open Graph
             </button>
@@ -198,64 +198,49 @@ export default function PaperCard({
       </div>
 
       {/* Right Column: Metrics Panel */}
-      <div className="flex flex-row md:flex-col items-center justify-around md:justify-start gap-4 border-t md:border-t-0 md:border-l border-[#ECECEC] pt-4 md:pt-2 pl-0 md:pl-6 shrink-0 w-full md:w-36 self-stretch">
+      <div className="flex flex-row md:flex-col items-end justify-between md:justify-start gap-6 border-t md:border-t-0 md:border-l border-[#ECECEC] pt-4 md:pt-2 pl-0 md:pl-6 shrink-0 w-full md:w-32 text-right">
         
-        {/* Upvotes Badge */}
-        <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">upvote</span>
-          <div className="flex items-center gap-1 mt-1 text-[#FF6B35] bg-[#FFF2EB] border border-[#FF6B35]/20 px-2.5 py-1 rounded">
-            <ThumbsUp size={12} className="fill-[#FF6B35]/10 text-[#FF6B35]" />
-            <span className="text-xs font-bold font-serif leading-none">
-              {paper.upvotes || 0}
-            </span>
+        {/* Upvotes */}
+        <div className="flex flex-col items-end text-right">
+          <div className="flex items-center gap-1 font-serif text-lg font-bold text-[#FF3B6B]">
+            <span>↑</span>
+            <span>{formatNumber(paper.upvotes || 0)}</span>
           </div>
+          <span className="text-[10px] font-sans font-bold text-[#888888] uppercase tracking-wider">
+            Upvotes
+          </span>
         </div>
 
-        {/* GitHub Stars Badge */}
-        <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">⭐ GitHub Stars</span>
+        {/* Repo Stars */}
+        <div className="flex flex-col items-end text-right">
           <button 
             onClick={handleOpenRepo}
-            className="flex items-center gap-1.5 mt-1 hover:text-[#FF6B35] transition-colors bg-gray-50 border border-gray-200 px-2.5 py-1 rounded cursor-pointer"
+            className="flex items-center gap-1.5 font-serif text-lg font-bold text-[#111111] hover:text-[#FF3B6B] transition-colors cursor-pointer bg-transparent border-0 p-0"
           >
-            <GithubIcon size={12} className="text-[#111111]" />
-            <span className="text-xs font-bold font-serif leading-none">
-              {formatNumber(paper.stars || 0)}
-            </span>
+            {/* Simple circular sync loop SVG */}
+            <svg className="w-3.5 h-3.5 text-gray-700 hover:text-[#FF3B6B] transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+            <span>{formatNumber(paper.stars || 0)}</span>
           </button>
+          <span className="text-[10px] font-sans font-bold text-[#888888] uppercase tracking-wider">
+            Repo
+          </span>
         </div>
 
-        {/* Citations Badge */}
-        <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">📖 Citations</span>
-          <div className="flex items-center gap-1 mt-1 text-[#111111] bg-gray-50 border border-gray-200 px-2.5 py-1 rounded">
-            <span className="text-xs font-bold font-serif leading-none">
-              {formatNumber(paper.citations || 0)}
-            </span>
+        {/* Citations */}
+        <div className="flex flex-col items-end text-right">
+          <div className="flex items-center gap-1.5 font-serif text-lg font-bold text-[#111111]">
+            {/* Simple book page SVG */}
+            <svg className="w-3.5 h-3.5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+            <span>{paper.citations || 0}</span>
           </div>
-        </div>
-
-        {/* Repository Badge */}
-        <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">🔗 Repository</span>
-          <button 
-            onClick={handleOpenRepo}
-            className="flex items-center gap-1.5 mt-1 hover:text-[#FF6B35] transition-colors bg-gray-50 border border-gray-200 px-2.5 py-1 rounded cursor-pointer"
-          >
-            <span className="text-xs font-bold font-serif leading-none">
-              {paper.githubRepo ? 'Official' : 'Search'}
-            </span>
-          </button>
-        </div>
-
-        {/* Reading Time */}
-        <div className="flex flex-col items-center text-center">
-          <span className="text-xs text-[#888888] font-sans font-bold uppercase tracking-wider scale-90">⏱ Reading Time</span>
-          <div className="flex items-center gap-1 mt-1 text-[#555555] bg-gray-50 border border-gray-200 px-2.5 py-1 rounded">
-            <span className="text-xs font-bold font-serif leading-none">
-              {paper.readingTime || '10 min'}
-            </span>
-          </div>
+          <span className="text-[10px] font-sans font-bold text-[#888888] uppercase tracking-wider">
+            Citations
+          </span>
         </div>
 
       </div>

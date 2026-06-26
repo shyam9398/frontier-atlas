@@ -34,7 +34,7 @@ export default function PaperThumbnail({ title, authors, hfThumbnail, className 
         <div className="absolute inset-0 flex flex-col justify-between p-3 bg-gradient-to-br from-[#FAFAFA] to-[#F3F4F6] text-left">
           {/* Header */}
           <div className="border-b border-[#E0E0E0] pb-1 flex justify-between items-center">
-            <span className="text-[6px] uppercase tracking-wider font-sans font-bold text-[#FF6B35]">
+            <span className="text-[6px] uppercase tracking-wider font-sans font-bold text-[#FF3B6B]">
               AI Hub Research
             </span>
             <span className="text-[5px] text-[#888888] font-sans">

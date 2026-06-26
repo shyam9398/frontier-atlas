@@ -3,10 +3,9 @@
 import React, { useState, useEffect } from 'react';
 
 import { 
-  Flame, Clock, Star, Landmark, Bookmark, FolderOpen, BookOpen, ChevronLeft, 
-  ChevronRight, PlusCircle, Cpu, Brain, Database, Code, Monitor, Globe, Bot,
+  Flame, Clock, Star, Cpu, Brain, Database, Code, Monitor, Globe, Bot,
   GitCommit, Activity, Sliders, Heart, CheckSquare, Network, FileText, Image,
-  Film, Volume2, Home
+  Film, Volume2, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -41,12 +40,6 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
   }, [hasManuallyToggled, isDrawer]);
 
   const groups = [
-    {
-      title: '',
-      items: [
-        { id: 'home', name: 'Home', icon: Home }
-      ]
-    },
     {
       title: 'DISCOVER',
       items: [
@@ -87,34 +80,16 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
         { id: 'gen-video', name: 'Video Generation', icon: Film },
         { id: 'gen-audio', name: 'Audio Generation', icon: Volume2 }
       ]
-    },
-    {
-      title: 'LIBRARY',
-      items: [
-        { id: 'organizations', name: 'Organizations', icon: Landmark },
-        { id: 'lib-collections', name: 'Collections', icon: FolderOpen }
-      ]
-    },
-    {
-      title: 'PERSONAL',
-      items: [
-        { id: 'lib-bookmarks', name: 'Bookmarks', icon: Bookmark },
-        { id: 'lib-reading', name: 'Reading List', icon: BookOpen }
-      ]
     }
   ];
 
   const collapsedIcons = [
-    { id: 'home', name: 'Home', icon: Home },
     { id: 'trending-papers', name: 'Trending Papers', icon: Flame },
     { id: 'latest-papers', name: 'Latest Papers', icon: Clock },
     { id: 'github-stars', name: 'Most GitHub Stars', icon: Star },
     { id: 'area-agents', name: 'Agents', icon: Cpu },
     { id: 'method-transformers', name: 'Transformer', icon: Sliders },
-    { id: 'gen-text', name: 'Text Generation', icon: FileText },
-    { id: 'organizations', name: 'Organizations', icon: Landmark },
-    { id: 'lib-bookmarks', name: 'Bookmarks', icon: Bookmark },
-    { id: 'lib-reading', name: 'Reading List', icon: BookOpen }
+    { id: 'gen-text', name: 'Text Generation', icon: FileText }
   ];
 
   return (
@@ -131,7 +106,7 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
               setIsCollapsed(!isCollapsed);
               setHasManuallyToggled(true);
             }}
-            className="p-1.5 rounded hover:bg-gray-100 text-[#666666] hover:text-[#FF6B35] transition-colors cursor-pointer focus:outline-none"
+            className="p-1.5 rounded hover:bg-gray-100 text-[#666666] hover:text-[#FF3B6B] transition-colors cursor-pointer focus:outline-none"
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -173,11 +148,11 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
                         }}
                         className={`flex items-center gap-2.5 px-3 py-2 w-full rounded-md text-left text-xs transition-all duration-150 cursor-pointer ${
                           isActive
-                            ? 'bg-[#FFF2EB] text-[#FF6B35] font-semibold'
-                            : 'text-[#666666] hover:bg-gray-50 hover:text-[#FF6B35]'
+                            ? 'bg-[#FFF0F3] text-[#FF3B6B] font-semibold'
+                            : 'text-[#666666] hover:bg-[#FFF5F7] hover:text-[#FF3B6B]'
                         }`}
                       >
-                        <Icon size={14} className={isActive ? 'text-[#FF6B35]' : 'text-[#666666]'} />
+                        <Icon size={14} className={isActive ? 'text-[#FF3B6B]' : 'text-[#666666]'} />
                         <span className="truncate">{item.name}</span>
                       </Link>
                     );
@@ -185,17 +160,6 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
                 </div>
               </div>
             ))}
-
-            {/* Submit Paper CTA */}
-            <div className="pt-2">
-              <button
-                onClick={() => onViewChange('submit-paper')}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-[#FF6B35] hover:bg-[#FF7F50] text-white text-xs font-medium rounded-md shadow-sm transition-all cursor-pointer"
-              >
-                <PlusCircle size={14} />
-                <span>Submit Paper</span>
-              </button>
-            </div>
           </div>
         )}
 
@@ -220,8 +184,8 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
                   }}
                   className={`relative p-2.5 rounded-md transition-all duration-150 flex items-center justify-center group cursor-pointer ${
                     isActive 
-                      ? 'bg-[#FFF2EB] text-[#FF6B35]' 
-                      : 'text-[#666666] hover:bg-gray-50 hover:text-[#FF6B35]'
+                      ? 'bg-[#FFF0F3] text-[#FF3B6B]' 
+                      : 'text-[#666666] hover:bg-[#FFF5F7] hover:text-[#FF3B6B]'
                   }`}
                 >
                   <Icon size={16} />
@@ -233,18 +197,6 @@ export default function Sidebar({ currentView, onViewChange, isDrawer = false }:
                 </Link>
               );
             })}
-
-            {/* Collapsed Submit Paper Icon */}
-            <button
-              onClick={() => onViewChange('submit-paper')}
-              className="mt-3 p-2.5 rounded-md bg-[#FF6B35] hover:bg-[#FF7F50] text-white transition-all shadow-sm flex items-center justify-center cursor-pointer group"
-              aria-label="Submit Paper"
-            >
-              <PlusCircle size={16} />
-              <div className="absolute left-14 bg-[#111111] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 z-50 whitespace-nowrap shadow-md">
-                Submit Paper
-              </div>
-            </button>
           </div>
         )}
 
